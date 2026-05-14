@@ -1,0 +1,2255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SBD Module — Skill-Based Deployment</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#f5f5f3;height:100vh;overflow:hidden}
+#root{height:100vh}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:236px;min-width:236px;background:#fff;border-right:1px solid #e5e5e5;display:flex;flex-direction:column;overflow-y:auto}
+.logo{padding:14px 16px;border-bottom:1px solid #e5e5e5;flex-shrink:0}
+.logo-title{font-size:13px;font-weight:600;color:#1a1a1a;display:flex;align-items:center;gap:6px}
+.logo-sub{font-size:11px;color:#888;margin-top:2px}
+.nav-sec{padding:14px 14px 4px;font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.7px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;border-radius:7px;margin:1px 6px;font-size:13px;color:#555;transition:background .12s,color .12s;user-select:none}
+.nav-item:hover{background:#f2f2f0;color:#1a1a1a}
+.nav-item.active{background:#e8f0fe;color:#1a56b0;font-weight:500}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:#fff;border-bottom:1px solid #e5e5e5;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:10px}
+.t-title{font-size:15px;font-weight:600;color:#1a1a1a}
+.t-meta{font-size:11px;color:#888;margin-top:1px}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.content{padding:18px 20px;flex:1;overflow-y:auto;overflow-x:hidden}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
+.bs{background:#e8f5e9;color:#2e7d32}.bw{background:#fff8e1;color:#b45309}.bd{background:#fdecea;color:#b71c1c}.bi{background:#e8f0fe;color:#1a56b0}.bg{background:#f0f0ee;color:#666}
+.tag-m{background:#e8f0fe;color:#1a56b0;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:500}
+.tag-nm{background:#e8f5e9;color:#2e7d32;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:500}
+.devx-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;background:#f0e8ff;color:#5b21b6;border:1px solid #c4a8f0;white-space:nowrap}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:7px;border:1px solid #d0d0cc;background:#fff;cursor:pointer;font-size:12px;color:#1a1a1a;font-family:inherit;transition:background .12s;white-space:nowrap}
+.btn:hover:not(:disabled){background:#f2f2f0}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:#1a56b0;color:#fff;border-color:transparent}.btn-primary:hover:not(:disabled){background:#154fa0}
+.btn-success{background:#2e7d32;color:#fff;border-color:transparent}.btn-success:hover:not(:disabled){background:#256428}
+.btn-warning{background:#e65100;color:#fff;border-color:transparent}.btn-warning:hover:not(:disabled){background:#bf360c}
+.btn-danger{background:#c62828;color:#fff;border-color:transparent}.btn-danger:hover:not(:disabled){background:#a31515}
+.btn-sm{padding:4px 9px;font-size:11px}
+.btn-xs{padding:2px 7px;font-size:10px}
+
+/* FORMS */
+input,select,textarea{padding:7px 10px;border-radius:7px;border:1px solid #d5d5d0;background:#fff;font-size:13px;color:#1a1a1a;font-family:inherit;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#1a56b0;box-shadow:0 0 0 3px rgba(26,86,176,.08)}
+input[disabled],select[disabled]{background:#f5f5f3;color:#aaa;cursor:not-allowed}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;font-weight:500;color:#555}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 12px;font-weight:500;font-size:11px;color:#666;border-bottom:1px solid #e5e5e5;background:#fafafa;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid #f0f0ee;color:#1a1a1a;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafaf8}
+.scroll-x{overflow-x:auto}
+
+/* CARDS */
+.card{background:#fff;border:1px solid #e5e5e5;border-radius:10px;margin-bottom:14px;overflow:hidden}
+.card-header{padding:11px 16px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;background:#fafafa;gap:10px;flex-wrap:wrap}
+.card-header-title{font-size:13px;font-weight:600;color:#1a1a1a}
+.card-body{padding:16px}
+.note{font-size:11px;color:#888;padding:5px 2px;margin-bottom:10px;line-height:1.5}
+
+/* FILTER ROW */
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-row input,.filter-row select{padding:6px 10px;font-size:12px;width:auto}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+
+/* METRICS */
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.metric{background:#fff;border:1px solid #e5e5e5;border-radius:9px;padding:12px 15px}
+.metric-label{font-size:11px;color:#888;margin-bottom:4px}
+.metric-value{font-size:22px;font-weight:600;color:#1a1a1a;line-height:1.1}
+.metric-sub{font-size:10px;color:#aaa;margin-top:2px}
+
+/* MASTERS HOME */
+.master-row{display:grid;grid-template-columns:1fr 130px 160px 200px 90px;align-items:center;padding:12px 16px;border-bottom:1px solid #f0f0ee;cursor:pointer;transition:background .1s;gap:10px}
+.master-row:last-child{border-bottom:none}
+.master-row:hover{background:#fafafa}
+.master-name{font-size:13px;font-weight:500;color:#1a1a1a}
+.master-desc{font-size:11px;color:#888;margin-top:2px}
+
+/* SPLIT */
+.split{display:grid;grid-template-columns:1fr 320px;gap:14px;align-items:start}
+
+/* MANPOWER PANEL */
+.mp-panel{background:#fff;border:1px solid #e5e5e5;border-radius:10px;overflow:hidden;position:sticky;top:0}
+.mp-panel-header{padding:10px 14px;border-bottom:1px solid #e5e5e5;background:#fafafa}
+.mp-panel-title{font-size:12px;font-weight:600;color:#1a1a1a}
+.mp-panel-context{font-size:11px;color:#888;margin-top:2px}
+.mp-panel-body{padding:10px;max-height:calc(100vh - 220px);overflow-y:auto}
+.mp-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#888;padding:6px 4px 4px;border-top:1px solid #f0f0ee;margin-top:6px}
+.mp-section-label:first-child{border-top:none;margin-top:0;padding-top:0}
+.mp-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e5e5e5;border-radius:7px;margin-bottom:5px;cursor:pointer;transition:all .12s}
+.mp-row:hover{border-color:#1a56b0;background:#f0f4ff}
+.mp-row.absent{opacity:.65;border-style:dashed}
+.mp-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.mp-name{font-size:12px;font-weight:500;flex:1;min-width:0}
+.mp-meta{font-size:10px;color:#888}
+.mp-skill{font-size:12px;font-weight:700;flex-shrink:0}
+.mp-empty{font-size:12px;color:#aaa;text-align:center;padding:20px 10px}
+
+/* SKILL COLOURS */
+.skill-hi{color:#2e7d32;font-weight:600}
+.skill-mid{color:#b45309;font-weight:600}
+.skill-lo{color:#b71c1c;font-weight:600}
+
+/* OP TABLE */
+.op-row.bottleneck td{background:#fff9f9}
+.bn-badge{font-size:9px;font-weight:700;color:#b71c1c;background:#fdecea;padding:1px 5px;border-radius:3px;margin-left:5px}
+.gap-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.gap-green{background:#4caf50}.gap-amber{background:#ff9800}.gap-red{background:#f44336}.gap-blue{background:#2196f3}
+
+/* EFF HEADER */
+.eff-header{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.eff-block{background:#fff;border:1px solid #e5e5e5;border-radius:9px;padding:10px 14px}
+.eff-block-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.eff-block-value{font-size:22px;font-weight:700;color:#1a1a1a;line-height:1.1}
+.eff-block-sub{font-size:10px;color:#aaa;margin-top:2px}
+
+/* SAVE BAR */
+.save-bar{background:#f0f4ff;border:1px solid #c7d7f5;border-radius:9px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+.save-bar-label{font-size:12px;color:#1a3a6b;flex:1;min-width:200px}
+.save-bar-label strong{display:block;margin-bottom:2px}
+
+/* BANNERS */
+.ob-banner{background:#f0f4ff;border:1px solid #c7d7f5;border-radius:8px;padding:10px 14px;margin-bottom:13px;display:flex;align-items:center;gap:14px;font-size:12px;flex-wrap:wrap}
+.ob-banner-item span{display:block;font-size:10px;color:#4a6fa5;text-transform:uppercase;letter-spacing:.4px;margin-bottom:1px}
+.ob-banner-item strong{font-size:13px;color:#1a3a6b}
+.smv-alert{background:#fff8e1;border:1px solid #ffe082;border-radius:9px;padding:11px 14px;margin-bottom:13px}
+.smv-alert-title{font-size:12px;font-weight:600;color:#7a5000;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.smv-alert-body{font-size:11px;color:#7a5000;line-height:1.55;margin-bottom:8px}
+.bn-suggest{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:10px 14px;margin-top:10px;display:flex;align-items:flex-start;gap:10px}
+.bn-suggest-body{flex:1}
+.bn-suggest-title{font-size:12px;font-weight:600;color:#1b5e20;margin-bottom:3px}
+.bn-suggest-text{font-size:11px;color:#2e7d32;line-height:1.5}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:13px;width:500px;max-width:95vw;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 48px rgba(0,0,0,.2)}
+.modal-lg{width:640px}
+.modal-sm{width:420px}
+.modal-header{background:#1a3a6b;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:14px;font-weight:600;color:#fff}
+.modal-sub{font-size:11px;color:#8ab4f8;margin-top:2px}
+.modal-close{background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.modal-close:hover{background:rgba(255,255,255,.3)}
+.modal-body{padding:18px;overflow-y:auto;flex:1}
+.modal-footer{padding:12px 18px;border-top:1px solid #e5e5e5;display:flex;gap:8px;justify-content:flex-end;background:#fafafa;flex-wrap:wrap}
+.skill-result{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:8px;background:#f0f4ff;border:1px solid #c7d7f5;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.skill-result.good{background:#e8f5e9;border-color:#a5d6a7}.skill-result.warn{background:#fff8e1;border-color:#ffe082}.skill-result.bad{background:#fdecea;border-color:#ef9a9a}
+.skill-result-label{font-size:11px;color:#4a6fa5;font-weight:500}
+.skill-result-value{font-size:28px;font-weight:700;color:#1a3a6b}
+
+/* MODE CARDS */
+.mode-card{border:1.5px solid #e5e5e5;border-radius:9px;padding:12px 14px;cursor:pointer;transition:all .12s;margin-bottom:8px}
+.mode-card:hover{border-color:#1a56b0;background:#f0f4ff}
+.mode-card.selected{border-color:#1a56b0;background:#e8f0fe}
+.mode-card-name{font-size:13px;font-weight:500;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.mode-card-desc{font-size:11px;color:#888}
+
+/* TRAINING PANEL */
+.tr-panel{position:fixed;right:0;top:0;bottom:0;width:340px;background:#fff;border-left:1px solid #e5e5e5;z-index:50;display:flex;flex-direction:column;box-shadow:-4px 0 20px rgba(0,0,0,.1);transition:transform .25s ease}
+.tr-panel.closed{transform:translateX(100%)}
+.tr-panel.open{transform:translateX(0)}
+.tr-header{background:#1a3a6b;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.tr-title{color:#fff;font-size:14px;font-weight:600}
+.tr-body{flex:1;overflow-y:auto;padding:14px}
+.tr-item{background:#fafafa;border:1px solid #e5e5e5;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.tr-item-name{font-size:12px;font-weight:600;margin-bottom:2px}
+.tr-item-op{font-size:11px;color:#888;margin-bottom:6px}
+
+/* DAILY ROW */
+.daily-op-row{display:grid;grid-template-columns:36px 1fr 90px 80px 90px 1fr;align-items:center;padding:10px 12px;border-bottom:1px solid #f0f0ee;cursor:pointer;gap:10px}
+.daily-op-row:last-child{border-bottom:none}
+.daily-op-row:hover{background:#fafaf8}
+.daily-op-row.selected{background:#e8f0fe}
+.daily-header-row{display:grid;grid-template-columns:36px 1fr 90px 80px 90px 1fr;align-items:center;padding:8px 12px;border-bottom:1px solid #e5e5e5;background:#fafafa;font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;gap:10px}
+.seq-circle{width:28px;height:28px;border-radius:50%;background:#f0f0ee;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#666}
+.seq-circle.has-absent{background:#fdecea;color:#b71c1c}
+.op-chip{display:inline-flex;align-items:center;gap:4px;background:#f0f0ee;border-radius:4px;padding:2px 7px;font-size:11px;margin:2px}
+.op-chip.auto-filled{background:#e8f5e9;color:#2e7d32;border:1px dashed #a5d6a7}
+.op-chip.absent{background:#fdecea;color:#b71c1c;text-decoration:line-through}
+
+/* URGENCY */
+.urgency-bar{display:flex;align-items:center;gap:14px;padding:10px 16px;border-radius:9px;margin-bottom:12px;border:1px solid #e5e5e5;background:#fff}
+.urgency-timer{font-size:22px;font-weight:700;color:#1a1a1a;font-variant-numeric:tabular-nums}
+.urgency-label{font-size:11px;color:#888}
+.urgency-gaps{font-size:12px;font-weight:600;margin-left:auto}
+
+/* AUTOFILL BANNER */
+.autofill-banner{background:#1a3a6b;border-radius:10px;padding:13px 16px;margin-bottom:13px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.autofill-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.autofill-body{flex:1;min-width:200px}
+.autofill-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:3px}
+.autofill-sub{font-size:11px;color:#8ab4f8;line-height:1.5}
+.autofill-actions{display:flex;gap:6px;flex-shrink:0;align-items:center;flex-wrap:wrap}
+.btn-approve-all{background:#4caf50;color:#fff;border:none;padding:6px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-approve-all:hover{background:#388e3c}
+
+/* SUMMARY BAR */
+.summary-bar{background:#f0f4ff;border:1px solid #c7d7f5;border-radius:9px;padding:12px 16px;display:flex;align-items:center;gap:24px;margin-top:13px;flex-wrap:wrap}
+.summary-item .s-label{font-size:10px;color:#4a6fa5;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.summary-item .s-value{font-size:18px;font-weight:600;color:#1a3a6b}
+.summary-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+/* PHASE 6 */
+.trend-card{background:#fff;border:1px solid #e5e5e5;border-radius:9px;padding:12px}
+.sparkline{display:flex;align-items:flex-end;gap:2px;height:36px;margin:8px 0}
+.spark-bar{flex:1;border-radius:2px 2px 0 0;min-width:6px}
+.capture-priority-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #e5e5e5;border-radius:7px;margin-bottom:6px;cursor:pointer;background:#fff;flex-wrap:wrap}
+.capture-priority-item:hover{border-color:#5b21b6;background:#f3f0ff}
+.cp-reason{font-size:10px;color:#5b21b6;background:#f3f0ff;padding:1px 6px;border-radius:3px}
+
+/* HEATMAP */
+.hm-cell{display:inline-flex;align-items:center;justify-content:center;width:38px;height:26px;border-radius:4px;font-size:11px;font-weight:600}
+.hm-0{background:#fdecea;color:#b71c1c}.hm-lo{background:#fff8e1;color:#b45309}.hm-ok{background:#e8f5e9;color:#2e7d32}.hm-hi{background:#1b5e20;color:#fff}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:#1a3a6b;color:#fff;padding:10px 18px;border-radius:8px;font-size:12px;z-index:999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:320px;line-height:1.4;animation:slideIn .25s ease}
+.toast.success{background:#2e7d32}
+.toast.warn{background:#e65100}
+.toast.error{background:#c62828}
+@keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.devx-banner{background:#f3f0ff;border:1px solid #ddd6fe;border-radius:8px;padding:10px 14px;margin-bottom:13px;display:flex;align-items:center;gap:10px;cursor:pointer}
+
+.dev-opt{border:1.5px solid #e5e5e5;border-radius:8px;padding:10px 12px;cursor:pointer;font-size:12px;color:#555;text-align:center;font-family:inherit;background:#fff;width:100%}
+.dev-opt:hover{border-color:#1a56b0;background:#f0f4ff;color:#1a56b0}
+.dev-opt.selected{border-color:#1a56b0;background:#e8f0fe;color:#1a56b0;font-weight:500}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .split{grid-template-columns:1fr}
+  .sidebar{width:200px;min-width:200px}
+}
+@media(max-width:600px){
+  .sidebar{display:none}
+  .content{padding:12px}
+  .topbar{padding:8px 12px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react" data-type="module">
+const { useState, useEffect, useRef, useMemo } = React;
+
+/* ════════════════════════════════════════════════════════════════
+   SEED DATA — DIVISIONS, FACTORIES, LINES, MACHINES, OPERATIONS, EMPLOYEES
+════════════════════════════════════════════════════════════════ */
+const INITIAL_DATA = {
+  divisions: [
+    {code:'SHT',name:'Shirts',status:'Active',updated:'02 Apr 2026'},
+    {code:'JNS',name:'Jeans',status:'Active',updated:'02 Apr 2026'},
+    {code:'KNT',name:'Knits',status:'Active',updated:'02 Apr 2026'},
+    {code:'ESS',name:'Essentials',status:'Inactive',updated:'01 Jan 2026'},
+  ],
+  factories: [
+    {code:'SHT-F01',name:'Shirts Unit A',div:'SHT',tw:'Unit-A-SHT',lines:4,status:'Active'},
+    {code:'SHT-F02',name:'Shirts Unit B',div:'SHT',tw:'Unit-B-SHT',lines:2,status:'Active'},
+    {code:'JNS-F01',name:'Jeans Unit A',div:'JNS',tw:'Unit-A-JNS',lines:3,status:'Active'},
+    {code:'JNS-F02',name:'Jeans Unit B',div:'JNS',tw:'Unit-B-JNS',lines:2,status:'Active'},
+    {code:'KNT-F01',name:'Knits Unit A',div:'KNT',tw:'Unit-A-KNT',lines:4,status:'Active'},
+    {code:'KNT-F02',name:'ATPPL',div:'KNT',tw:'ATPPL-KNT',lines:3,status:'Active'},
+  ],
+  lines: [
+    {num:'L-101',div:'SHT',fac:'SHT-F01',shift:'General',times:'08:00 – 17:00',net:510,status:'Active'},
+    {num:'L-102',div:'SHT',fac:'SHT-F01',shift:'First',times:'06:00 – 14:00',net:465,status:'Active'},
+    {num:'L-103',div:'SHT',fac:'SHT-F02',shift:'Second',times:'14:00 – 22:00',net:450,status:'Active'},
+    {num:'L-201',div:'JNS',fac:'JNS-F01',shift:'General',times:'08:00 – 17:00',net:480,status:'Active'},
+    {num:'L-301',div:'KNT',fac:'KNT-F01',shift:'General',times:'08:00 – 17:00',net:510,status:'Inactive'},
+  ],
+  machines: [
+    {type:'SNLS',name:'Single Needle Lock Stitch',fac:'SHT-F01',div:'SHT',status:'Active'},
+    {type:'DNLS',name:'Double Needle Lock Stitch',fac:'SHT-F01',div:'SHT',status:'Active'},
+    {type:'O/L',name:'Overlock',fac:'SHT-F01',div:'SHT',status:'Active'},
+    {type:'BTN',name:'Button Attach',fac:'SHT-F01',div:'SHT',status:'Active'},
+    {type:'BH',name:'Buttonhole',fac:'SHT-F01',div:'SHT',status:'Active'},
+    {type:'BAR',name:'Bartack',fac:'JNS-F01',div:'JNS',status:'Active'},
+  ],
+  operations: [
+    {code:'SHT-001',name:'Front placket attach',div:'SHT',machine:'SNLS',type:'Machine',adj:'SHT-002,SHT-005',smv:0.850,status:'Active'},
+    {code:'SHT-002',name:'Collar attach',div:'SHT',machine:'SNLS',type:'Machine',adj:'SHT-001,SHT-004',smv:1.200,status:'Active'},
+    {code:'SHT-003',name:'Sleeve attach',div:'SHT',machine:'O/L',type:'Machine',adj:'SHT-004,SHT-005',smv:1.450,status:'Active'},
+    {code:'SHT-004',name:'Cuff attach',div:'SHT',machine:'SNLS',type:'Machine',adj:'SHT-002,SHT-003',smv:0.900,status:'Active'},
+    {code:'SHT-005',name:'Side seam',div:'SHT',machine:'O/L',type:'Machine',adj:'SHT-003,SHT-001',smv:0.750,status:'Active'},
+    {code:'SHT-010',name:'Thread trimming',div:'SHT',machine:'—',type:'Non-Machine',adj:'SHT-011',smv:0.300,status:'Active'},
+    {code:'SHT-011',name:'Button attach',div:'SHT',machine:'BTN',type:'Machine',adj:'SHT-010,SHT-012',smv:0.950,status:'Active'},
+    {code:'SHT-012',name:'Buttonhole',div:'SHT',machine:'BH',type:'Machine',adj:'SHT-011',smv:0.500,status:'Active'},
+    {code:'JNS-001',name:'Waistband attach',div:'JNS',machine:'SNLS',type:'Machine',adj:'JNS-002',smv:1.100,status:'Active'},
+    {code:'JNS-002',name:'Fly attach',div:'JNS',machine:'SNLS',type:'Machine',adj:'JNS-001',smv:1.350,status:'Active'},
+  ],
+  obs: [
+    {id:'SHT-4821',style:'SHT-4821',name:'Classic Formal Shirt',customer:'Customer A',div:'SHT',season:'SS26',created:'05 Apr 2026',ops:8,smv:7.10},
+    {id:'SHT-4799',style:'SHT-4799',name:'Oxford Slim Shirt',customer:'Customer B',div:'SHT',season:'AW26',created:'01 Apr 2026',ops:6,smv:5.55},
+    {id:'SHT-4751',style:'SHT-4751',name:'Casual Check Shirt',customer:'Customer A',div:'SHT',season:'SS26',created:'22 Mar 2026',ops:8,smv:7.10},
+  ],
+  lineDesigns: [
+    {id:'SHT-4821 — LD — 05-04-2026',style:'Classic Formal Shirt',obId:'SHT-4821',line:'L-101',mp:28,eff:82,bn:'Collar attach',status:'Active'},
+    {id:'SHT-4799 — LD — 01-04-2026',style:'Oxford Slim Shirt',obId:'SHT-4799',line:'L-102',mp:24,eff:76,bn:'Sleeve attach',status:'Pending'},
+    {id:'SHT-4751 — LD — 22-03-2026',style:'Casual Check Shirt',obId:'SHT-4751',line:'L-103',mp:22,eff:79,bn:'Button attach',status:'Active'},
+  ],
+};
+
+// Detailed OBs — operations per OB
+const OB_OPERATIONS = {
+  'SHT-4821':[
+    {seq:1,opCode:'SHT-001',name:'Front placket attach',smv:0.85,machine:'SNLS',type:'Machine'},
+    {seq:2,opCode:'SHT-002',name:'Collar attach',smv:1.20,machine:'SNLS',type:'Machine'},
+    {seq:3,opCode:'SHT-003',name:'Sleeve attach',smv:1.45,machine:'O/L',type:'Machine'},
+    {seq:4,opCode:'SHT-004',name:'Cuff attach',smv:0.90,machine:'SNLS',type:'Machine'},
+    {seq:5,opCode:'SHT-005',name:'Side seam',smv:0.75,machine:'O/L',type:'Machine'},
+    {seq:6,opCode:'SHT-010',name:'Thread trimming',smv:0.30,machine:'—',type:'Non-Machine'},
+    {seq:7,opCode:'SHT-011',name:'Button attach',smv:0.95,machine:'BTN',type:'Machine'},
+    {seq:8,opCode:'SHT-012',name:'Buttonhole',smv:0.50,machine:'BH',type:'Machine'},
+  ],
+  'SHT-4799':[
+    {seq:1,opCode:'SHT-001',name:'Front placket attach',smv:0.85,machine:'SNLS',type:'Machine'},
+    {seq:2,opCode:'SHT-002',name:'Collar attach',smv:1.20,machine:'SNLS',type:'Machine'},
+    {seq:3,opCode:'SHT-003',name:'Sleeve attach',smv:1.45,machine:'O/L',type:'Machine'},
+    {seq:4,opCode:'SHT-010',name:'Thread trimming',smv:0.30,machine:'—',type:'Non-Machine'},
+    {seq:5,opCode:'SHT-011',name:'Button attach',smv:0.95,machine:'BTN',type:'Machine'},
+    {seq:6,opCode:'SHT-012',name:'Buttonhole',smv:0.80,machine:'BH',type:'Machine'},
+  ],
+  'SHT-4751':[
+    {seq:1,opCode:'SHT-001',name:'Front placket attach',smv:0.85,machine:'SNLS',type:'Machine'},
+    {seq:2,opCode:'SHT-002',name:'Collar attach',smv:1.20,machine:'SNLS',type:'Machine'},
+    {seq:3,opCode:'SHT-003',name:'Sleeve attach',smv:1.45,machine:'O/L',type:'Machine'},
+    {seq:4,opCode:'SHT-004',name:'Cuff attach',smv:0.90,machine:'SNLS',type:'Machine'},
+    {seq:5,opCode:'SHT-005',name:'Side seam',smv:0.75,machine:'O/L',type:'Machine'},
+    {seq:6,opCode:'SHT-010',name:'Thread trimming',smv:0.30,machine:'—',type:'Non-Machine'},
+    {seq:7,opCode:'SHT-011',name:'Button attach',smv:0.95,machine:'BTN',type:'Machine'},
+    {seq:8,opCode:'SHT-012',name:'Buttonhole',smv:0.70,machine:'BH',type:'Machine'},
+  ],
+};
+
+const OB_TEMPLATES = {
+  formal:{name:'Formal Shirt',desc:'9 ops · SMV 7.30',ops:[
+    {seq:1,opCode:'SHT-001',name:'Front placket attach',smv:0.85,machine:'SNLS',type:'Machine'},
+    {seq:2,opCode:'SHT-002',name:'Collar attach',smv:1.20,machine:'SNLS',type:'Machine'},
+    {seq:3,opCode:'SHT-003',name:'Sleeve attach',smv:1.45,machine:'O/L',type:'Machine'},
+    {seq:4,opCode:'SHT-004',name:'Cuff attach',smv:0.90,machine:'SNLS',type:'Machine'},
+    {seq:5,opCode:'SHT-005',name:'Side seam',smv:0.75,machine:'O/L',type:'Machine'},
+    {seq:6,opCode:'SHT-010',name:'Thread trimming',smv:0.30,machine:'—',type:'Non-Machine'},
+    {seq:7,opCode:'SHT-011',name:'Button attach',smv:0.95,machine:'BTN',type:'Machine'},
+    {seq:8,opCode:'SHT-012',name:'Buttonhole',smv:0.50,machine:'BH',type:'Machine'},
+    {seq:9,opCode:'SHT-010',name:'Final trim',smv:0.40,machine:'—',type:'Non-Machine'},
+  ]},
+  casual:{name:'Casual Shirt',desc:'6 ops · SMV 5.30',ops:[
+    {seq:1,opCode:'SHT-001',name:'Front placket attach',smv:0.75,machine:'SNLS',type:'Machine'},
+    {seq:2,opCode:'SHT-002',name:'Collar attach',smv:1.10,machine:'SNLS',type:'Machine'},
+    {seq:3,opCode:'SHT-003',name:'Sleeve attach',smv:1.30,machine:'O/L',type:'Machine'},
+    {seq:4,opCode:'SHT-005',name:'Side seam',smv:0.70,machine:'O/L',type:'Machine'},
+    {seq:5,opCode:'SHT-010',name:'Thread trimming',smv:0.25,machine:'—',type:'Non-Machine'},
+    {seq:6,opCode:'SHT-011',name:'Button attach',smv:0.85,machine:'BTN',type:'Machine'},
+  ]},
+  jean:{name:'5-Pocket Jean',desc:'8 ops · SMV 7.55',ops:[
+    {seq:1,opCode:'JNS-001',name:'Waistband attach',smv:1.10,machine:'SNLS',type:'Machine'},
+    {seq:2,opCode:'JNS-002',name:'Fly attach',smv:1.35,machine:'SNLS',type:'Machine'},
+    {seq:3,opCode:'JNS-003',name:'Back pocket attach',smv:0.95,machine:'SNLS',type:'Machine'},
+    {seq:4,opCode:'JNS-004',name:'Front pocket attach',smv:0.85,machine:'SNLS',type:'Machine'},
+    {seq:5,opCode:'JNS-005',name:'Inseam',smv:1.20,machine:'O/L',type:'Machine'},
+    {seq:6,opCode:'JNS-006',name:'Outseam',smv:1.15,machine:'O/L',type:'Machine'},
+    {seq:7,opCode:'JNS-007',name:'Bartack',smv:0.30,machine:'BAR',type:'Machine'},
+    {seq:8,opCode:'JNS-008',name:'Thread trimming',smv:0.40,machine:'—',type:'Non-Machine'},
+  ]},
+};
+
+// Floor median CT data — used for SMV health check
+const FLOOR_CT = {
+  'Collar attach':{median:1.58,obs:12},
+  'Sleeve attach':{median:1.72,obs:8},
+  'Front placket attach':{median:0.92,obs:6},
+  'Button attach':{median:1.02,obs:5},
+};
+
+// Phase 4/5 — operators with skill data
+const OPERATORS = [
+  {id:'EMP-1042',name:'Meena R.',color:'#e65100',skills:{'Front placket attach':109,'Collar attach':91},absent:false},
+  {id:'EMP-1103',name:'Priya S.',color:'#2e7d32',skills:{'Front placket attach':92,'Collar attach':84},absent:false},
+  {id:'EMP-1087',name:'Ravi K.',color:'#1a56b0',skills:{'Collar attach':68,'Front placket attach':72},absent:true},
+  {id:'EMP-2601',name:'Deepa M.',color:'#5b21b6',skills:{'Collar attach':84},absent:false},
+  {id:'EMP-2602',name:'Nanda K.',color:'#c62828',skills:{'Collar attach':78},absent:false},
+  {id:'EMP-2310',name:'Geetha S.',color:'#0f6e56',skills:{'Sleeve attach':95},absent:false},
+  {id:'EMP-2311',name:'Anitha R.',color:'#b45309',skills:{'Sleeve attach':88},absent:false},
+  {id:'EMP-2312',name:'Ramesh P.',color:'#1a56b0',skills:{'Sleeve attach':82,'Cuff attach':75},absent:false},
+  {id:'EMP-2313',name:'Usha V.',color:'#555',skills:{'Sleeve attach':76},absent:false},
+  {id:'EMP-2401',name:'Helper-01',color:'#888',skills:{'Thread trimming':100},absent:false},
+  {id:'EMP-1210',name:'Suresh M.',color:'#c62828',skills:{'Button attach':108},absent:true},
+  {id:'EMP-1211',name:'Babu T.',color:'#0f6e56',skills:{'Button attach':99,'Buttonhole':92},absent:false},
+  {id:'EMP-2701',name:'Kumar T.',color:'#1a56b0',skills:{'Collar attach':85,'Front placket attach':88},absent:false},
+  {id:'EMP-2702',name:'Lakshmi B.',color:'#0f6e56',skills:{'Collar attach':104},absent:false},
+  {id:'EMP-2703',name:'Saravanan P.',color:'#5b21b6',skills:{'Collar attach':96,'Cuff attach':80},absent:false},
+  {id:'EMP-2704',name:'Preethi S.',color:'#b45309',skills:{'Sleeve attach':79},absent:false},
+  {id:'EMP-2705',name:'Rajesh K.',color:'#c62828',skills:{'Button attach':91,'Buttonhole':85},absent:false},
+];
+
+const ROLES = {
+  Admin:{label:'Admin',email:'admin@arvind.com',color:'#7c3aed'},
+  IE:{label:'Industrial Engineer',email:'ie.rajan@arvind.com',color:'#1a56b0'},
+  Supervisor:{label:'Line Supervisor',email:'supervisor.rajesh@arvind.com',color:'#0f6e56'},
+};
+
+/* ════════════════════════════════════════════════════════════════
+   HELPERS & SMALL COMPONENTS
+════════════════════════════════════════════════════════════════ */
+const skillClass = (pct) => pct == null ? '' : pct >= 90 ? 'skill-hi' : pct >= 70 ? 'skill-mid' : 'skill-lo';
+const skillColor = (pct) => pct == null ? '#888' : pct >= 90 ? '#2e7d32' : pct >= 70 ? '#b45309' : '#b71c1c';
+
+const Avatar = ({name, color}) => (
+  <div className="mp-avatar" style={{background: color || '#1a56b0'}}>
+    {(name || '?').charAt(0).toUpperCase()}
+  </div>
+);
+
+const Toast = ({message, type, onDone}) => {
+  useEffect(() => {
+    if (!message) return;
+    const t = setTimeout(onDone, 2800);
+    return () => clearTimeout(t);
+  }, [message]);
+  if (!message) return null;
+  return <div className={`toast ${type || ''}`}>{message}</div>;
+};
+
+const Modal = ({title, sub, onClose, children, footer, size}) => (
+  <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose && onClose()}>
+    <div className={`modal ${size === 'lg' ? 'modal-lg' : size === 'sm' ? 'modal-sm' : ''}`}>
+      <div className="modal-header">
+        <div>
+          <div className="modal-title">{title}</div>
+          {sub && <div className="modal-sub">{sub}</div>}
+        </div>
+        {onClose && <button className="modal-close" onClick={onClose}>×</button>}
+      </div>
+      <div className="modal-body">{children}</div>
+      {footer && <div className="modal-footer">{footer}</div>}
+    </div>
+  </div>
+);
+
+const StatusBadge = ({status}) => (
+  <span className={`badge ${status === 'Active' ? 'bs' : 'bg'}`}>{status}</span>
+);
+
+/* ════════════════════════════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════════════════════════════ */
+const Sidebar = ({current, onNav, role}) => {
+  const adminItems = [
+    {key:'masters',label:'All masters'},
+    {key:'division',label:'Division'},
+    {key:'factory',label:'Factory'},
+    {key:'line',label:'Line'},
+    {key:'machine',label:'Machine'},
+    {key:'operation',label:'Operation'},
+    {key:'skill',label:'Employee skill ✦',isDevx:true},
+    {key:'integration',label:'Integration health'},
+  ];
+  const ieItems = [
+    {key:'ob',label:'Operation bulletins',sec:'Phase 2 — OBs'},
+    {key:'ld',label:'Line design',sec:'Phase 3 — Line Design'},
+    {key:'dashboard',label:'Assignment dashboard',sec:'Phase 4 — Deployment ✦'},
+    {key:'deploy',label:'Deployment planning'},
+    {key:'ct-history',label:'Skill history',sec:'Phase 6 — Cycle Time ✦'},
+  ];
+  const supItems = [
+    {key:'daily',label:'Daily balancing',sec:'Phase 5 — Daily ✦'},
+    {key:'ct-priority',label:'Capture priority',sec:'Phase 6 — Cycle Time ✦'},
+    {key:'ct-history',label:'Skill history (read)'},
+  ];
+  
+  const items = role === 'Admin' ? [{sec:'Phase 1 — Masters'},...adminItems] :
+                role === 'IE' ? ieItems :
+                supItems;
+
+  let lastSec = null;
+  return (
+    <div className="sidebar">
+      <div className="logo">
+        <div className="logo-title">SBD Module <span className="devx-badge" style={{fontSize:9}}>DevX</span></div>
+        <div className="logo-sub">Skill-Based Deployment</div>
+      </div>
+      {items.map((item, i) => {
+        if (item.sec) {
+          lastSec = item.sec;
+          if (!item.key) return <div key={'s-'+i} className="nav-sec">{item.sec}</div>;
+          return (
+            <React.Fragment key={'sec-'+i}>
+              <div className="nav-sec">{item.sec}</div>
+              <div className={`nav-item ${current === item.key ? 'active' : ''}`} onClick={() => onNav(item.key)}>
+                <span className="nav-dot"></span>{item.label}
+              </div>
+            </React.Fragment>
+          );
+        }
+        return (
+          <div key={item.key} className={`nav-item ${current === item.key ? 'active' : ''}`} onClick={() => onNav(item.key)}>
+            <span className="nav-dot"></span>{item.label}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 1 — MASTERS
+════════════════════════════════════════════════════════════════ */
+const MastersHome = ({data, onNav}) => {
+  const masters = [
+    {key:'division',name:'Division master',desc:'SAP Division codes — SHT, JNS, KNT, ESS',count:data.divisions.filter(d=>d.status==='Active').length+' active',cls:'bs'},
+    {key:'factory',name:'Factory master',desc:'SAP Factory codes — Track One unit names',count:data.factories.filter(d=>d.status==='Active').length+' active',cls:'bs'},
+    {key:'line',name:'Line master',desc:'SAP Line numbers — shift config at line level',count:data.lines.filter(d=>d.status==='Active').length+' active',cls:'bs'},
+    {key:'machine',name:'Machine master',desc:'Machine types per factory — type only',count:data.machines.length+' types',cls:'bs'},
+    {key:'operation',name:'Operation master',desc:'Operations, SMV, adjacent operations',count:data.operations.length+' active',cls:'bs'},
+    {key:'skill',name:'Employee skill master ✦',desc:'Skill % per operator per operation — cycle-time driven',count:OPERATORS.length+' operators',cls:'bi'},
+  ];
+  return (
+    <>
+      <div className="metric-grid">
+        <div className="metric"><div className="metric-label">Divisions</div><div className="metric-value">{data.divisions.filter(d=>d.status==='Active').length}</div><div className="metric-sub">active</div></div>
+        <div className="metric"><div className="metric-label">Factories</div><div className="metric-value">{data.factories.length}</div><div className="metric-sub">active</div></div>
+        <div className="metric"><div className="metric-label">Lines</div><div className="metric-value">{data.lines.filter(d=>d.status==='Active').length}</div><div className="metric-sub">active</div></div>
+        <div className="metric"><div className="metric-label">Operations</div><div className="metric-value">{data.operations.length}</div><div className="metric-sub">across divisions</div></div>
+        <div className="metric"><div className="metric-label">Operators</div><div className="metric-value">{OPERATORS.length}</div><div className="metric-sub">in skill master</div></div>
+      </div>
+      <div className="card">
+        <div className="card-header"><div className="card-header-title">All masters</div><div style={{fontSize:11,color:'#888'}}>Admin access only</div></div>
+        {masters.map(m => (
+          <div key={m.key} className="master-row" onClick={()=>onNav(m.key)}>
+            <div><div className="master-name">{m.name}</div><div className="master-desc">{m.desc}</div></div>
+            <span className={'badge '+m.cls}>{m.count}</span>
+            <div style={{fontSize:12,color:'#555'}}>Today 08:12</div>
+            <div style={{fontSize:12,color:'#555'}}>admin@arvind.com</div>
+            <button className="btn btn-sm" onClick={(e)=>{e.stopPropagation();onNav(m.key);}}>Open →</button>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
+const MasterTable = ({title,data,setData,collection,cols,addFields,renderRow,note,toast}) => {
+  const [search,setSearch] = useState('');
+  const [statusFilter,setStatusFilter] = useState('');
+  const [showAdd,setShowAdd] = useState(false);
+  const [form,setForm] = useState({});
+  
+  const filtered = data.filter(d => {
+    const sMatch = !search || JSON.stringify(d).toLowerCase().includes(search.toLowerCase());
+    const stMatch = !statusFilter || d.status === statusFilter;
+    return sMatch && stMatch;
+  });
+  
+  const toggleStatus = (rec) => {
+    setData(data.map(d => d === rec ? {...d, status: d.status === 'Active' ? 'Inactive' : 'Active'} : d));
+    toast(rec.status === 'Active' ? 'Deactivated' : 'Activated', 'success');
+  };
+  
+  const handleAdd = () => {
+    const newRec = {...form, status:'Active', updated: new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})};
+    setData([newRec, ...data]);
+    setShowAdd(false);
+    setForm({});
+    toast('Added successfully ✓', 'success');
+  };
+  
+  return (
+    <>
+      <div className="section-header">
+        <div className="filter-row" style={{margin:0}}>
+          <input type="text" placeholder={"Search "+title.toLowerCase()+"..."} value={search} onChange={e=>setSearch(e.target.value)} style={{width:200}}/>
+          <select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
+            <option value="">All statuses</option><option>Active</option><option>Inactive</option>
+          </select>
+        </div>
+        <button className="btn btn-primary" onClick={()=>setShowAdd(true)}>+ Add {title.toLowerCase()}</button>
+      </div>
+      {note && <div className="note">{note}</div>}
+      <div className="card">
+        <div className="scroll-x">
+          <table>
+            <thead><tr>{cols.map(c=><th key={c}>{c}</th>)}<th>Actions</th></tr></thead>
+            <tbody>
+              {filtered.map((rec,i)=>(
+                <tr key={i}>
+                  {renderRow(rec)}
+                  <td>
+                    <div style={{display:'flex',gap:4}}>
+                      <button className="btn btn-sm" onClick={()=>toast('Edit form would open','info')}>Edit</button>
+                      <button className="btn btn-sm" onClick={()=>toggleStatus(rec)}>{rec.status==='Active'?'Deactivate':'Activate'}</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && <tr><td colSpan={cols.length+1} style={{textAlign:'center',padding:24,color:'#aaa'}}>No records match filters</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {showAdd && (
+        <Modal title={"Add "+title.toLowerCase()} sub="Fill required fields and save" onClose={()=>setShowAdd(false)}
+          footer={<><button className="btn" onClick={()=>setShowAdd(false)}>Cancel</button><button className="btn btn-success" onClick={handleAdd}>Save</button></>}>
+          <div className="form-grid">
+            {addFields.map(f => (
+              <div key={f.name} className={f.full ? 'field' : 'field'} style={f.full ? {gridColumn:'1/-1'} : {}}>
+                <label>{f.label} {f.required && '*'}</label>
+                {f.type === 'select' ? 
+                  <select value={form[f.name]||''} onChange={e=>setForm({...form,[f.name]:e.target.value})}>
+                    <option value="">Select...</option>
+                    {f.options.map(o=><option key={o}>{o}</option>)}
+                  </select>
+                  : <input type={f.type||'text'} placeholder={f.placeholder} value={form[f.name]||''} onChange={e=>setForm({...form,[f.name]:e.target.value})}/>
+                }
+              </div>
+            ))}
+          </div>
+        </Modal>
+      )}
+    </>
+  );
+};
+
+const DivisionMaster = ({data,setData,toast}) => (
+  <MasterTable title="Division" data={data.divisions} setData={d=>setData({...data,divisions:d})} collection="divisions"
+    cols={['Division code','Division name','SAP code','Status','Last updated']}
+    addFields={[{name:'code',label:'Division code',required:true,placeholder:'e.g. NEW'},{name:'name',label:'Division name',required:true,placeholder:'e.g. New division'}]}
+    renderRow={(d)=>[
+      <td key="c"><strong>{d.code}</strong></td>,<td key="n">{d.name}</td>,
+      <td key="s" style={{fontFamily:'monospace',fontSize:12,color:'#1a56b0'}}>{d.code}</td>,
+      <td key="st"><StatusBadge status={d.status}/></td>,
+      <td key="u" style={{fontSize:11,color:'#888'}}>{d.updated}</td>
+    ]}
+    note="Division codes must match SAP Division Codes exactly. Codes are immutable after creation. Records can be deactivated but never deleted."
+    toast={toast}/>
+);
+
+const FactoryMaster = ({data,setData,toast}) => (
+  <MasterTable title="Factory" data={data.factories} setData={d=>setData({...data,factories:d})}
+    cols={['Code','Name','Division','TW unit','Lines','Status']}
+    addFields={[
+      {name:'code',label:'SAP factory code',required:true,placeholder:'e.g. SHT-F03'},
+      {name:'name',label:'Factory name',required:true},
+      {name:'div',label:'Division',required:true,type:'select',options:data.divisions.map(d=>d.code)},
+      {name:'tw',label:'TW unit name'},
+    ]}
+    renderRow={(d)=>[
+      <td key="c"><strong>{d.code}</strong></td>,<td key="n">{d.name}</td>,
+      <td key="d">{d.div}</td>,<td key="t" style={{fontSize:12,color:'#888'}}>{d.tw}</td>,
+      <td key="l">{d.lines}</td>,<td key="s"><StatusBadge status={d.status}/></td>
+    ]}
+    toast={toast}/>
+);
+
+const LineMaster = ({data,setData,toast}) => (
+  <MasterTable title="Line" data={data.lines} setData={d=>setData({...data,lines:d})}
+    cols={['Line #','Division','Factory','Shift','Times','Net min','Status']}
+    addFields={[
+      {name:'num',label:'Line number',required:true,placeholder:'e.g. L-104'},
+      {name:'div',label:'Division',required:true,type:'select',options:data.divisions.map(d=>d.code)},
+      {name:'fac',label:'Factory',required:true,type:'select',options:data.factories.map(f=>f.code)},
+      {name:'shift',label:'Shift type',required:true,type:'select',options:['General','First','Second','Third']},
+      {name:'times',label:'Shift times',placeholder:'e.g. 08:00 – 17:00'},
+      {name:'net',label:'Net minutes',type:'number',placeholder:'Auto-calculates from shift times'},
+    ]}
+    renderRow={(d)=>[
+      <td key="n"><strong>{d.num}</strong></td>,<td key="d">{d.div}</td>,<td key="f">{d.fac}</td>,
+      <td key="s">{d.shift}</td>,<td key="t" style={{fontSize:12}}>{d.times}</td>,
+      <td key="m"><strong>{d.net}</strong></td>,<td key="st"><StatusBadge status={d.status}/></td>
+    ]}
+    note="Net minutes = (Shift end − Shift start) − (Lunch end − Lunch start). Auto-calculated. No separate Shift Master."
+    toast={toast}/>
+);
+
+const MachineMaster = ({data,setData,toast}) => (
+  <MasterTable title="Machine type" data={data.machines} setData={d=>setData({...data,machines:d})}
+    cols={['Type','Full name','Factory','Division','Status']}
+    addFields={[
+      {name:'type',label:'Machine type code',required:true,placeholder:'e.g. SNLS'},
+      {name:'name',label:'Full name',placeholder:'e.g. Single Needle Lock Stitch'},
+      {name:'fac',label:'Factory',required:true,type:'select',options:data.factories.map(f=>f.code)},
+      {name:'div',label:'Division',required:true,type:'select',options:data.divisions.map(d=>d.code)},
+    ]}
+    renderRow={(d)=>[
+      <td key="t"><strong>{d.type}</strong></td>,<td key="n">{d.name}</td>,<td key="f">{d.fac}</td>,
+      <td key="d">{d.div}</td>,<td key="s"><StatusBadge status={d.status}/></td>
+    ]}
+    note="Machine master is at factory level — not line level. No serial number required, type only."
+    toast={toast}/>
+);
+
+const OperationMaster = ({data,setData,toast}) => (
+  <MasterTable title="Operation" data={data.operations} setData={d=>setData({...data,operations:d})}
+    cols={['Code','Name','Division','Machine','Type','Adjacent ops','SMV','Status']}
+    addFields={[
+      {name:'code',label:'Operation code',required:true,placeholder:'e.g. SHT-013'},
+      {name:'name',label:'Operation name',required:true},
+      {name:'div',label:'Division',required:true,type:'select',options:data.divisions.map(d=>d.code)},
+      {name:'machine',label:'Machine type',type:'select',options:data.machines.map(m=>m.type)},
+      {name:'type',label:'Op type',required:true,type:'select',options:['Machine','Non-Machine']},
+      {name:'adj',label:'Adjacent operations',placeholder:'Comma-separated op codes',full:true},
+      {name:'smv',label:'SMV (minutes)',required:true,type:'number',placeholder:'e.g. 0.85'},
+    ]}
+    renderRow={(d)=>[
+      <td key="c"><strong>{d.code}</strong></td>,<td key="n">{d.name}</td>,<td key="d">{d.div}</td>,
+      <td key="m">{d.machine}</td>,
+      <td key="t"><span className={d.type==='Machine'?'tag-m':'tag-nm'}>{d.type}</span></td>,
+      <td key="a" style={{fontSize:11,color:'#888'}}>{d.adj}</td>,
+      <td key="sm">{d.smv.toFixed(4)}</td>,<td key="s"><StatusBadge status={d.status}/></td>
+    ]}
+    note="SMV lives on the operation — no separate SMV Master. Adjacent operations power Phase 4/5 fallback matching."
+    toast={toast}/>
+);
+
+const EmployeeSkillMaster = ({toast}) => {
+  const [showHeatmap,setShowHeatmap] = useState(false);
+  const [opFilter,setOpFilter] = useState('');
+  const [levelFilter,setLevelFilter] = useState('');
+  
+  // Build skill records from OPERATORS
+  const allSkills = OPERATORS.flatMap(emp => 
+    Object.entries(emp.skills).map(([op, pct]) => ({
+      empId:emp.id, name:emp.name, color:emp.color, op, pct,
+      smv: 1.20, // simplified
+      ct: (1.20/pct*100).toFixed(2),
+      stale: emp.id === 'EMP-2602' && op === 'Collar attach', // mark one stale
+    }))
+  );
+  
+  const filtered = allSkills.filter(s => {
+    if (opFilter && s.op !== opFilter) return false;
+    if (levelFilter === 'hi' && s.pct < 90) return false;
+    if (levelFilter === 'lo' && s.pct >= 70) return false;
+    if (levelFilter === 'stale' && !s.stale) return false;
+    return true;
+  });
+  
+  const allOps = [...new Set(allSkills.map(s=>s.op))];
+  
+  return (
+    <>
+      <div className="devx-banner" onClick={()=>setShowHeatmap(true)}>
+        <span style={{fontSize:16}}>✦</span>
+        <div style={{flex:1}}>
+          <div style={{fontSize:12,fontWeight:600,color:'#5b21b6'}}>Skill coverage map <span className="devx-badge">AI</span></div>
+          <div style={{fontSize:11,color:'#7c3aed'}}>See which operations are critically understaffed across all lines — before it becomes a deployment crisis</div>
+        </div>
+        <button className="btn btn-sm" style={{borderColor:'#c4a8f0',color:'#5b21b6',background:'#f3f0ff'}}>View heatmap →</button>
+      </div>
+      <div className="filter-row">
+        <select value={opFilter} onChange={e=>setOpFilter(e.target.value)}><option value="">All operations</option>{allOps.map(o=><option key={o}>{o}</option>)}</select>
+        <select value={levelFilter} onChange={e=>setLevelFilter(e.target.value)}>
+          <option value="">All skill levels</option><option value="hi">High (≥90%)</option><option value="lo">Low (&lt;70%)</option><option value="stale">Stale only</option>
+        </select>
+        <div style={{marginLeft:'auto',display:'flex',gap:6}}>
+          <button className="btn btn-sm" onClick={()=>toast('Bulk upload template downloading...','info')}>Bulk upload</button>
+          <button className="btn btn-sm" onClick={()=>toast('Exporting to Excel...','info')}>Export</button>
+        </div>
+      </div>
+      <div className="note">Showing employees with at least one recorded cycle time. Skill % = SMV ÷ Cycle Time × 100 — never manually entered. Stale = observation &gt;180 days old.</div>
+      <div className="card">
+        <div className="scroll-x">
+          <table>
+            <thead><tr><th>Emp ID</th><th>Name</th><th>Operation</th><th>SMV</th><th>CT (min)</th><th>Skill %</th><th>Status</th></tr></thead>
+            <tbody>
+              {filtered.map((s,i)=>(
+                <tr key={i}>
+                  <td style={{fontSize:11,color:'#888'}}>{s.empId}</td>
+                  <td><strong>{s.name}</strong></td>
+                  <td>{s.op}</td>
+                  <td>{s.smv.toFixed(4)}</td>
+                  <td>{s.ct}</td>
+                  <td><span className={skillClass(s.pct)}>{s.pct}%</span></td>
+                  <td>{s.stale ? <span className="badge bd">Stale</span> : <span className="badge bs">Current</span>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {showHeatmap && <SkillHeatmap onClose={()=>setShowHeatmap(false)} toast={toast}/>}
+    </>
+  );
+};
+
+const SkillHeatmap = ({onClose,toast}) => {
+  const ops = ['Front placket','Collar attach','Sleeve attach','Cuff attach','Thread trimming','Button attach'];
+  const lines = ['L-101','L-102','L-103','L-201'];
+  // Simulated trained operator counts per (op, line)
+  const matrix = {
+    'Front placket': {'L-101':4,'L-102':3,'L-103':2,'L-201':4},
+    'Collar attach': {'L-101':1,'L-102':2,'L-103':2,'L-201':5},
+    'Sleeve attach': {'L-101':5,'L-102':4,'L-103':3,'L-201':7},
+    'Cuff attach': {'L-101':3,'L-102':2,'L-103':3,'L-201':4},
+    'Thread trimming': {'L-101':3,'L-102':2,'L-103':3,'L-201':3},
+    'Button attach': {'L-101':3,'L-102':3,'L-103':2,'L-201':4},
+  };
+  const cellCls = (n) => n <= 1 ? 'hm-0' : n === 2 ? 'hm-lo' : n <= 5 ? 'hm-ok' : 'hm-hi';
+  
+  return (
+    <Modal size="lg" title="Skill coverage map ✦ AI" sub="Operations × lines — trained operator count per cell" onClose={onClose}
+      footer={<><button className="btn btn-primary" onClick={()=>{onClose();toast('Redirected to Operation Master — review Collar attach adjacent operations','warn');}}>Go to Operation Master</button><button className="btn" onClick={onClose}>Close</button></>}>
+      <div style={{background:'#fdecea',border:'1px solid #ef9a9a',borderRadius:8,padding:'10px 14px',marginBottom:12,fontSize:12,color:'#b71c1c'}}>
+        <strong>⚠ 1 critical gap detected:</strong> Collar attach has only 1 trained operator on L-101. Any absence creates a zero-match gap in Phase 5.
+      </div>
+      <div className="scroll-x">
+        <table style={{fontSize:12}}>
+          <thead><tr><th>Operation</th>{lines.map(l=><th key={l}>{l}</th>)}<th>Status</th></tr></thead>
+          <tbody>
+            {ops.map(op=>{
+              const counts = lines.map(l=>matrix[op][l]);
+              const min = Math.min(...counts);
+              const status = min<=1?{cls:'bd',label:'⚠ Critical'}:min===2?{cls:'bw',label:'Watch'}:{cls:'bs',label:'Adequate'};
+              return (
+                <tr key={op}>
+                  <td>{op}</td>
+                  {lines.map(l=><td key={l}><span className={'hm-cell '+cellCls(matrix[op][l])}>{matrix[op][l]}</span></td>)}
+                  <td><span className={'badge '+status.cls}>{status.label}</span></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div style={{display:'flex',gap:10,marginTop:12,fontSize:11,alignItems:'center'}}>
+        <span className="hm-cell hm-0" style={{fontSize:10}}>1</span>Critical
+        <span className="hm-cell hm-lo" style={{fontSize:10}}>2</span>Low
+        <span className="hm-cell hm-ok" style={{fontSize:10}}>3+</span>Adequate
+        <span className="hm-cell hm-hi" style={{fontSize:10}}>6+</span>Strong
+      </div>
+    </Modal>
+  );
+};
+
+const IntegrationHealth = ({toast}) => {
+  const [lastSAP,setLastSAP] = useState('2 min ago');
+  const [lastHRMS,setLastHRMS] = useState('5 min ago');
+  
+  return (
+    <>
+      <div className="note">SAP and HRMS integration health. Manual sync triggers and full history. Admin-only screen.</div>
+      <div className="metric-grid" style={{gridTemplateColumns:'1fr 1fr'}}>
+        <div className="card" style={{margin:0}}>
+          <div className="card-header"><div className="card-header-title">SAP (ERP)</div><span className="badge bs">Connected ✓</span></div>
+          <div className="card-body">
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:12}}>
+              <div><div style={{fontSize:10,color:'#888'}}>Auth method</div><div style={{fontSize:13}}>OAuth2 Client Credentials</div></div>
+              <div><div style={{fontSize:10,color:'#888'}}>Cadence</div><div style={{fontSize:13}}>Every 60 min (delta)</div></div>
+              <div><div style={{fontSize:10,color:'#888'}}>Last sync</div><div style={{fontSize:13}}>{lastSAP}</div></div>
+              <div><div style={{fontSize:10,color:'#888'}}>Last result</div><div style={{fontSize:13,color:'#2e7d32'}}>Success</div></div>
+              <div><div style={{fontSize:10,color:'#888'}}>Pulled</div><div style={{fontSize:13}}>247 records</div></div>
+              <div><div style={{fontSize:10,color:'#888'}}>Errors</div><div style={{fontSize:13}}>0</div></div>
+            </div>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              <button className="btn btn-sm" onClick={()=>{setLastSAP('just now');toast('Divisions sync triggered ✓','success');}}>Sync divisions</button>
+              <button className="btn btn-sm" onClick={()=>{setLastSAP('just now');toast('Factories sync triggered ✓','success');}}>Sync factories</button>
+              <button className="btn btn-sm" onClick={()=>{setLastSAP('just now');toast('Lines sync triggered ✓','success');}}>Sync lines</button>
+            </div>
+          </div>
+        </div>
+        <div className="card" style={{margin:0}}>
+          <div className="card-header"><div className="card-header-title">HRMS</div><span className="badge bs">Connected ✓</span></div>
+          <div className="card-body">
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:12}}>
+              <div><div style={{fontSize:10,color:'#888'}}>Auth method</div><div style={{fontSize:13}}>API Key</div></div>
+              <div><div style={{fontSize:10,color:'#888'}}>Cadence</div><div style={{fontSize:13}}>Demo 30 min · Attend daily</div></div>
+              <div><div style={{fontSize:10,color:'#888'}}>Last sync</div><div style={{fontSize:13}}>{lastHRMS}</div></div>
+              <div><div style={{fontSize:10,color:'#888'}}>Last result</div><div style={{fontSize:13,color:'#2e7d32'}}>Success</div></div>
+              <div><div style={{fontSize:10,color:'#888'}}>Employees synced</div><div style={{fontSize:13}}>1,842</div></div>
+              <div><div style={{fontSize:10,color:'#888'}}>Mismatches</div><div style={{fontSize:13,color:'#b45309'}}>3</div></div>
+            </div>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              <button className="btn btn-sm" onClick={()=>{setLastHRMS('just now');toast('Employees sync triggered ✓','success');}}>Sync employees</button>
+              <button className="btn btn-sm" onClick={()=>{setLastHRMS('just now');toast('Attendance pulled ✓','success');}}>Pull attendance</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-header"><div className="card-header-title">Last 20 sync runs</div></div>
+        <table>
+          <thead><tr><th>System</th><th>Master</th><th>Status</th><th>Pulled</th><th>New</th><th>Updated</th><th>Errors</th><th>Finished</th><th>Triggered by</th></tr></thead>
+          <tbody>
+            <tr><td>SAP</td><td>Divisions</td><td><span className="badge bs">Success</span></td><td>4</td><td>0</td><td>0</td><td>0</td><td>Today 09:00</td><td>Auto</td></tr>
+            <tr><td>SAP</td><td>Factories</td><td><span className="badge bs">Success</span></td><td>6</td><td>0</td><td>1</td><td>0</td><td>Today 09:00</td><td>Auto</td></tr>
+            <tr><td>HRMS</td><td>Employees</td><td><span className="badge bs">Success</span></td><td>1,842</td><td>0</td><td>3</td><td>0</td><td>Today 08:30</td><td>Auto</td></tr>
+            <tr><td>HRMS</td><td>Attendance</td><td><span className="badge bs">Success</span></td><td>1,839</td><td>—</td><td>—</td><td>0</td><td>Today 07:45</td><td>Auto</td></tr>
+            <tr><td>SAP</td><td>Lines</td><td><span className="badge bs">Success</span></td><td>24</td><td>0</td><td>0</td><td>0</td><td>Today 08:00</td><td>Auto</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 2 — OPERATION BULLETINS
+════════════════════════════════════════════════════════════════ */
+const OBList = ({data,setData,obOps,setObOps,toast,onCreate,onEdit,onCreateLD}) => {
+  const [search,setSearch] = useState('');
+  const filtered = data.obs.filter(o => !search || (o.style+o.name+o.customer).toLowerCase().includes(search.toLowerCase()));
+  
+  return (
+    <>
+      <div className="section-header">
+        <div className="filter-row" style={{margin:0}}>
+          <input type="text" placeholder="Search style..." value={search} onChange={e=>setSearch(e.target.value)} style={{width:200}}/>
+        </div>
+        <button className="btn btn-primary" onClick={onCreate}>+ Create OB</button>
+      </div>
+      <div className="card">
+        <div className="scroll-x">
+          <table>
+            <thead><tr><th>OB #</th><th>Style</th><th>Name</th><th>Customer</th><th>Division</th><th>Created</th><th>Ops</th><th>Total SMV</th><th>Actions</th></tr></thead>
+            <tbody>
+              {filtered.map((o)=>(
+                <tr key={o.id}>
+                  <td><strong>{o.id} — {o.created}</strong></td><td>{o.style}</td><td>{o.name}</td>
+                  <td>{o.customer}</td><td><span className="badge bi">{o.div}</span></td>
+                  <td>{o.created}</td><td>{o.ops}</td><td>{o.smv.toFixed(2)}</td>
+                  <td>
+                    <div style={{display:'flex',gap:4}}>
+                      <button className="btn btn-sm" onClick={()=>onEdit(o)}>Edit</button>
+                      <button className="btn btn-sm" onClick={()=>{onEdit({...o,id:'COPY-'+o.id,created:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})});toast('Copy created — edit and save','success');}}>Copy</button>
+                      <button className="btn btn-sm btn-primary" onClick={()=>onCreateLD(o)}>Line design →</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className="note">IE sees only their division's OBs. Modifying or copying always creates a duplicate — original is never overwritten.</div>
+    </>
+  );
+};
+
+const OBCreateModal = ({onClose,onSelect,toast}) => {
+  const [mode,setMode] = useState('fresh');
+  const [tmpl,setTmpl] = useState(null);
+  const [copyId,setCopyId] = useState(null);
+  
+  const proceed = () => {
+    if (mode === 'fresh') onSelect({mode:'fresh',ops:[]});
+    else if (mode === 'copy' && copyId) onSelect({mode:'copy',ops:OB_OPERATIONS[copyId] || []});
+    else if (mode === 'template' && tmpl) onSelect({mode:'template',ops:OB_TEMPLATES[tmpl].ops,tmplName:OB_TEMPLATES[tmpl].name});
+    else { toast('Please select an option','warn'); return; }
+    onClose();
+  };
+  
+  return (
+    <Modal title="Create Operation Bulletin" sub="Choose how to start" onClose={onClose}
+      footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn btn-primary" onClick={proceed} disabled={mode==='template' && !tmpl}>Proceed →</button></>}>
+      <div className={`mode-card ${mode==='fresh'?'selected':''}`} onClick={()=>setMode('fresh')}>
+        <div className="mode-card-name">Create fresh OB</div>
+        <div className="mode-card-desc">Start with a blank operation list</div>
+      </div>
+      <div className={`mode-card ${mode==='copy'?'selected':''}`} onClick={()=>setMode('copy')}>
+        <div className="mode-card-name">Copy existing OB</div>
+        <div className="mode-card-desc">Find a style to duplicate as a starting point</div>
+      </div>
+      <div className={`mode-card ${mode==='template'?'selected':''}`} onClick={()=>setMode('template')}>
+        <div className="mode-card-name">Start from template <span className="devx-badge">✦ DevX</span></div>
+        <div className="mode-card-desc">Pre-built templates with current SMVs — no stale data</div>
+      </div>
+      {mode === 'copy' && (
+        <div style={{marginTop:12}}>
+          <div style={{fontSize:12,fontWeight:500,marginBottom:6}}>Select OB to copy</div>
+          {Object.entries(OB_OPERATIONS).map(([id,ops])=>(
+            <div key={id} className={`mode-card ${copyId===id?'selected':''}`} onClick={()=>setCopyId(id)}>
+              <div className="mode-card-name">{id}</div>
+              <div className="mode-card-desc">{ops.length} ops · Total SMV {ops.reduce((s,o)=>s+o.smv,0).toFixed(2)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+      {mode === 'template' && (
+        <div style={{marginTop:12}}>
+          <div style={{fontSize:12,fontWeight:500,marginBottom:6}}>Select a template — current SMVs auto-loaded</div>
+          {Object.entries(OB_TEMPLATES).map(([k,t])=>(
+            <div key={k} className={`mode-card ${tmpl===k?'selected':''}`} onClick={()=>setTmpl(k)}>
+              <div className="mode-card-name">{t.name}</div>
+              <div className="mode-card-desc">{t.desc}</div>
+            </div>
+          ))}
+          <div style={{fontSize:10,color:'#888',marginTop:6}}>Templates always load with current SMVs from the Operation Master — never stale.</div>
+        </div>
+      )}
+    </Modal>
+  );
+};
+
+const OBBuilder = ({initialOps,initialMeta,onCancel,onSave,toast,divisions}) => {
+  const [ops,setOps] = useState(initialOps || []);
+  const [meta,setMeta] = useState(initialMeta || {styleNum:'',styleName:'',customer:'',div:'SHT',buyer:'',season:''});
+  const [smvAlerts,setSmvAlerts] = useState([]);
+  const [showAlerts,setShowAlerts] = useState(false);
+  
+  const totalSMV = ops.reduce((s,o)=>s+(parseFloat(o.smv)||0),0);
+  
+  const addRow = () => setOps([...ops,{seq:ops.length+1,name:'',smv:0.5,machine:'SNLS',type:'Machine'}]);
+  const updateOp = (i,patch) => setOps(ops.map((o,idx)=>idx===i?{...o,...patch}:o));
+  const removeOp = (i) => setOps(ops.filter((_,idx)=>idx!==i).map((o,idx)=>({...o,seq:idx+1})));
+  const moveUp = (i) => {
+    if (i===0) return;
+    const newOps = [...ops];
+    [newOps[i-1],newOps[i]] = [newOps[i],newOps[i-1]];
+    setOps(newOps.map((o,idx)=>({...o,seq:idx+1})));
+  };
+  
+  const save = () => {
+    if (!meta.styleNum) { toast('Style number is required','warn'); return; }
+    if (totalSMV <= 0) { toast('Total SMV must be > 0','warn'); return; }
+    
+    // DevX SMV Health Check
+    const alerts = [];
+    ops.forEach(op => {
+      const fd = FLOOR_CT[op.name];
+      if (fd && fd.obs >= 5) {
+        const smv = parseFloat(op.smv);
+        const divergence = (fd.median - smv) / smv * 100;
+        if (divergence > 15) {
+          alerts.push({op:op.name, smv:smv.toFixed(2), floor:fd.median.toFixed(2), divergence:Math.round(divergence), obs:fd.obs});
+        }
+      }
+    });
+    
+    if (alerts.length && !showAlerts) {
+      setSmvAlerts(alerts);
+      setShowAlerts(true);
+      return;
+    }
+    
+    onSave({...meta, ops, totalSMV});
+    toast('OB saved successfully ✓','success');
+  };
+  
+  return (
+    <>
+      <div className="ob-banner">
+        <button className="btn btn-sm" onClick={onCancel}>← Back</button>
+        <div className="ob-banner-item"><span>Style #</span><strong>{meta.styleNum || '—'}</strong></div>
+        <div className="ob-banner-item"><span>Customer</span><strong>{meta.customer || '—'}</strong></div>
+        <div className="ob-banner-item"><span>Division</span><strong>{meta.div}</strong></div>
+      </div>
+      
+      {showAlerts && smvAlerts.length > 0 && (
+        <div className="smv-alert">
+          <div className="smv-alert-title">⚠ SMV Health Check <span className="devx-badge">✦ Intelligence</span></div>
+          <div className="smv-alert-body">
+            Floor observations suggest some SMVs may be understated:<br/>
+            {smvAlerts.map((a,i)=>(<div key={i} style={{marginTop:4}}><strong>{a.op}</strong>: SMV {a.smv} min but floor median is {a.floor} min across {a.obs} observations (<strong>{a.divergence}% slower than standard</strong>). Your efficiency plan may be overstated.</div>))}
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <button className="btn btn-sm" onClick={()=>{setShowAlerts(false);setSmvAlerts([]);save();}}>Dismiss and save anyway</button>
+            <button className="btn btn-sm btn-primary" onClick={()=>{toast('Opening Operation Master to review SMVs','info');setShowAlerts(false);}}>Review in master →</button>
+          </div>
+        </div>
+      )}
+      
+      <div className="card">
+        <div className="card-header"><div className="card-header-title">OB header</div></div>
+        <div className="card-body">
+          <div className="form-grid-3">
+            <div className="field"><label>Style number *</label><input value={meta.styleNum} onChange={e=>setMeta({...meta,styleNum:e.target.value})} placeholder="e.g. SHT-4900"/></div>
+            <div className="field"><label>Style name</label><input value={meta.styleName} onChange={e=>setMeta({...meta,styleName:e.target.value})} placeholder="e.g. Classic Formal Shirt"/></div>
+            <div className="field"><label>Customer</label><input value={meta.customer} onChange={e=>setMeta({...meta,customer:e.target.value})}/></div>
+            <div className="field"><label>Division *</label><select value={meta.div} onChange={e=>setMeta({...meta,div:e.target.value})}>{divisions.map(d=><option key={d.code}>{d.code}</option>)}</select></div>
+            <div className="field"><label>Buyer</label><input value={meta.buyer} onChange={e=>setMeta({...meta,buyer:e.target.value})}/></div>
+            <div className="field"><label>Season</label><input value={meta.season} onChange={e=>setMeta({...meta,season:e.target.value})} placeholder="e.g. SS26"/></div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header"><div className="card-header-title">Operations</div><button className="btn btn-sm btn-primary" onClick={addRow}>+ Add row</button></div>
+        <div className="scroll-x">
+          <table>
+            <thead><tr><th style={{width:40}}>Seq</th><th>Operation name</th><th style={{width:90}}>SMV</th><th style={{width:130}}>Machine</th><th style={{width:130}}>Op type</th><th style={{width:120}}>Actions</th></tr></thead>
+            <tbody>
+              {ops.map((op,i)=>(
+                <tr key={i}>
+                  <td><strong>{op.seq}</strong></td>
+                  <td><input value={op.name} onChange={e=>updateOp(i,{name:e.target.value})}/></td>
+                  <td><input type="number" step="0.01" value={op.smv} onChange={e=>updateOp(i,{smv:parseFloat(e.target.value)||0})}/></td>
+                  <td><select value={op.machine} onChange={e=>updateOp(i,{machine:e.target.value})}><option>SNLS</option><option>DNLS</option><option>O/L</option><option>BTN</option><option>BH</option><option>—</option></select></td>
+                  <td><select value={op.type} onChange={e=>updateOp(i,{type:e.target.value})}><option>Machine</option><option>Non-Machine</option></select></td>
+                  <td>
+                    <div style={{display:'flex',gap:4}}>
+                      <button className="btn btn-xs" onClick={()=>moveUp(i)} disabled={i===0}>↑</button>
+                      <button className="btn btn-xs btn-danger" onClick={()=>removeOp(i)}>✕</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {ops.length === 0 && <tr><td colSpan={6} style={{textAlign:'center',padding:24,color:'#aaa'}}>No operations yet. Click + Add row to start.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div className="summary-bar">
+        <div className="summary-item"><div className="s-label">Total operations</div><div className="s-value">{ops.length}</div></div>
+        <div style={{width:1,height:36,background:'#c7d7f5'}}/>
+        <div className="summary-item"><div className="s-label">Total SMV</div><div className="s-value">{totalSMV.toFixed(2)}</div></div>
+        <div className="summary-actions">
+          <button className="btn" onClick={onCancel}>Cancel</button>
+          <button className="btn btn-success" onClick={save}>Save OB</button>
+        </div>
+      </div>
+    </>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 3 — LINE DESIGN
+════════════════════════════════════════════════════════════════ */
+const LineDesignList = ({data,toast,onCreate,onDeploy}) => (
+  <>
+    <div className="section-header">
+      <div className="filter-row" style={{margin:0}}>
+        <select><option>All divisions</option><option>SHT</option><option>JNS</option></select>
+        <select><option>All statuses</option><option>Active</option><option>Pending</option></select>
+      </div>
+      <button className="btn btn-primary" onClick={onCreate}>+ Create line design</button>
+    </div>
+    <div className="card">
+      <table>
+        <thead><tr><th>LD #</th><th>Style</th><th>Line</th><th>MP</th><th>Eff %</th><th>Bottleneck</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {data.lineDesigns.map((ld,i)=>(
+            <tr key={i}>
+              <td><strong>{ld.id}</strong></td>
+              <td>{ld.style}</td>
+              <td>{ld.line}</td>
+              <td>{ld.mp}</td>
+              <td><span className={skillClass(ld.eff)}>{ld.eff}%</span></td>
+              <td>{ld.bn}</td>
+              <td><span className={'badge '+(ld.status==='Active'?'bs':'bw')}>{ld.status}</span></td>
+              <td>
+                <div style={{display:'flex',gap:4}}>
+                  <button className="btn btn-sm" onClick={()=>toast('Read-only view','info')}>View</button>
+                  <button className="btn btn-sm btn-primary" onClick={()=>onDeploy(ld)}>Deploy →</button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="note">Line Design naming: [Style #] — LD — [DD-MM-YYYY]. A saved LD cannot be overwritten — changes require copy.</div>
+  </>
+);
+
+const LineDesignBuilder = ({ob,obOps,onCancel,onSave,toast,lines,divisions}) => {
+  const [minMP,setMinMP] = useState(22);
+  const [maxMP,setMaxMP] = useState(28);
+  const [lineNum,setLineNum] = useState('L-101');
+  const [generated,setGenerated] = useState([]);
+  const [selectedIdx,setSelectedIdx] = useState(null);
+  const [showRelief,setShowRelief] = useState(false);
+  const [reliefApplied,setReliefApplied] = useState(false);
+  
+  const ops = obOps || OB_OPERATIONS['SHT-4821'] || [];
+  const totalSMV = ops.reduce((s,o)=>s+o.smv,0);
+  const line = lines.find(l => l.num === lineNum) || lines[0];
+  const netMin = line ? line.net : 510;
+  
+  const generate = () => {
+    if (minMP > maxMP) { toast('Min must be ≤ Max','warn'); return; }
+    const scenarios = [];
+    for (let mp = minMP; mp <= maxMP; mp++) {
+      const opAssigns = ops.map(op => {
+        const proportional = Math.max(1, Math.round((op.smv/totalSMV)*mp));
+        return {...op, mp: proportional};
+      });
+      const totalAssigned = opAssigns.reduce((s,o)=>s+o.mp,0);
+      if (totalAssigned !== mp) {
+        const diff = mp - totalAssigned;
+        const idx = opAssigns.findIndex(o => o.smv === Math.max(...opAssigns.map(x=>x.smv)));
+        opAssigns[idx].mp = Math.max(1, opAssigns[idx].mp + diff);
+      }
+      const opCapacities = opAssigns.map(o => ({...o, capacity: Math.floor((netMin*o.mp)/o.smv)}));
+      const bn = opCapacities.reduce((a,b)=>a.capacity<b.capacity?a:b);
+      const target = bn.capacity;
+      opCapacities.forEach(o => o.skillReq = Math.round((target/o.capacity)*100));
+      const eff = Math.round(((totalSMV*target)/(mp*netMin))*100);
+      scenarios.push({mp, ops:opCapacities, bn:bn.name, target, eff});
+    }
+    setGenerated(scenarios);
+    setSelectedIdx(Math.floor(scenarios.length/2));
+    setReliefApplied(false);
+    toast('Generated '+scenarios.length+' scenarios','success');
+  };
+  
+  const selected = selectedIdx !== null ? generated[selectedIdx] : null;
+  
+  const computeRelief = (scenario) => {
+    if (!scenario) return null;
+    const bn = scenario.ops.reduce((a,b)=>a.capacity<b.capacity?a:b);
+    // Find an over-capacity operation to take 1 from
+    const candidates = scenario.ops.filter(o => o.mp > 1 && o.name !== bn.name);
+    if (!candidates.length) return null;
+    // simulate moving 1 to bn — find best
+    let best = null;
+    candidates.forEach(c => {
+      const newBnCap = Math.floor((netMin*(bn.mp+1))/bn.smv);
+      const newCCap = Math.floor((netMin*(c.mp-1))/c.smv);
+      const newBn = Math.min(newBnCap, newCCap, ...scenario.ops.filter(o=>o.name!==bn.name&&o.name!==c.name).map(o=>o.capacity));
+      if (newBn > scenario.target && (!best || newBn > best.newBn)) {
+        const newEff = Math.round(((totalSMV*newBn)/(scenario.mp*netMin))*100);
+        best = {from:c.name, to:bn.name, newBn, newEff, currentEff:scenario.eff};
+      }
+    });
+    return best;
+  };
+  
+  const relief = selected ? computeRelief(selected) : null;
+  
+  const applyRelief = () => {
+    if (!relief || !selected) return;
+    const newOps = selected.ops.map(o => {
+      if (o.name === relief.from) return {...o, mp:o.mp-1, capacity:Math.floor((netMin*(o.mp-1))/o.smv)};
+      if (o.name === relief.to) return {...o, mp:o.mp+1, capacity:Math.floor((netMin*(o.mp+1))/o.smv)};
+      return o;
+    });
+    const newBn = newOps.reduce((a,b)=>a.capacity<b.capacity?a:b);
+    newOps.forEach(o => o.skillReq = Math.round((newBn.capacity/o.capacity)*100));
+    const newSc = {...selected, ops:newOps, bn:newBn.name, target:newBn.capacity, eff:relief.newEff};
+    const newGen = [...generated];
+    newGen[selectedIdx] = newSc;
+    setGenerated(newGen);
+    setReliefApplied(true);
+    toast('Applied — efficiency improved by '+(relief.newEff-relief.currentEff)+'%','success');
+  };
+  
+  const save = () => {
+    if (selected === null) { toast('Select a scenario first','warn'); return; }
+    onSave({
+      id:(ob?.style||'NEW')+' — LD — '+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'-'),
+      style:ob?.name||'New style', obId:ob?.id||'—', line:lineNum, mp:selected.mp, eff:selected.eff, bn:selected.bn, status:'Pending'
+    });
+    toast('Line design saved ✓','success');
+  };
+  
+  return (
+    <>
+      <div className="ob-banner">
+        <button className="btn btn-sm" onClick={onCancel}>← Back</button>
+        <div className="ob-banner-item"><span>OB</span><strong>{ob?.id || 'New OB'}</strong></div>
+        <div className="ob-banner-item"><span>Style</span><strong>{ob?.name || '—'}</strong></div>
+        <div className="ob-banner-item"><span>Total SMV</span><strong>{totalSMV.toFixed(2)}</strong></div>
+        <div className="ob-banner-item"><span>Ops</span><strong>{ops.length}</strong></div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header"><div className="card-header-title">Line design setup</div></div>
+        <div className="card-body">
+          <div className="form-grid-3">
+            <div className="field"><label>Line</label><select value={lineNum} onChange={e=>setLineNum(e.target.value)}>{lines.filter(l=>l.status==='Active').map(l=><option key={l.num}>{l.num}</option>)}</select></div>
+            <div className="field"><label>Net minutes</label><input value={netMin} disabled/></div>
+            <div className="field"><label>&nbsp;</label><div style={{display:'flex',gap:8}}>
+              <input type="number" value={minMP} onChange={e=>setMinMP(parseInt(e.target.value)||0)} placeholder="Min MP" style={{width:'45%'}}/>
+              <input type="number" value={maxMP} onChange={e=>setMaxMP(parseInt(e.target.value)||0)} placeholder="Max MP" style={{width:'45%'}}/>
+            </div></div>
+          </div>
+          <div style={{marginTop:12,display:'flex',gap:8}}>
+            <button className="btn btn-primary" onClick={generate}>Generate scenarios</button>
+          </div>
+        </div>
+      </div>
+      
+      {generated.length > 0 && (
+        <>
+          <div className="card">
+            <div className="card-header"><div className="card-header-title">Scenario comparison — {generated.length} scenarios</div></div>
+            <div className="scroll-x">
+              <table>
+                <thead><tr><th>MP</th><th>Line eff %</th><th></th><th>Target output</th><th>Bottleneck</th><th></th></tr></thead>
+                <tbody>
+                  {generated.map((sc,i)=>(
+                    <tr key={i} style={{cursor:'pointer', background: i===selectedIdx?'#e8f0fe':''}} onClick={()=>{setSelectedIdx(i);setReliefApplied(false);}}>
+                      <td><strong>{sc.mp}</strong></td>
+                      <td><span className={skillClass(sc.eff)}><strong>{sc.eff}%</strong></span></td>
+                      <td style={{width:160}}><div style={{background:'#f0f0ee',borderRadius:3,height:8,position:'relative'}}><div style={{background:skillColor(sc.eff),height:'100%',width:sc.eff+'%',borderRadius:3}}></div></div></td>
+                      <td>{sc.target} pcs</td>
+                      <td>{sc.bn}</td>
+                      <td>{i===selectedIdx ? <span className="badge bi">Selected</span> : <button className="btn btn-xs btn-primary" onClick={(e)=>{e.stopPropagation();setSelectedIdx(i);setReliefApplied(false);}}>Select</button>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          {selected && (
+            <>
+              <div className="card">
+                <div className="card-header"><div className="card-header-title">Scenario detail — {selected.mp} operators, {selected.eff}% efficiency</div></div>
+                <div className="scroll-x">
+                  <table>
+                    <thead><tr><th>Seq</th><th>Operation</th><th>Type</th><th>SMV</th><th>MP</th><th>Capacity</th><th>Skill req'd %</th></tr></thead>
+                    <tbody>
+                      {selected.ops.map((op,i)=>(
+                        <tr key={i} className={op.name===selected.bn?'op-row bottleneck':''}>
+                          <td><strong>{op.seq}</strong></td>
+                          <td>{op.name} {op.name===selected.bn && <span className="bn-badge">BOTTLENECK</span>}</td>
+                          <td><span className={op.type==='Machine'?'tag-m':'tag-nm'}>{op.type}</span></td>
+                          <td>{op.smv.toFixed(2)}</td>
+                          <td><strong>{op.mp}</strong></td>
+                          <td>{op.capacity}</td>
+                          <td><span className={skillClass(op.skillReq)}>{op.skillReq}%</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              {relief && !reliefApplied && (
+                <div className="bn-suggest">
+                  <div className="devx-badge" style={{flexShrink:0,marginTop:2}}>✦ Intelligence</div>
+                  <div className="bn-suggest-body">
+                    <div className="bn-suggest-title">Bottleneck Relief Suggestion</div>
+                    <div className="bn-suggest-text">Move <strong>1 operator from {relief.from}</strong> to <strong>{relief.to}</strong> — line efficiency improves from <strong>{relief.currentEff}% to {relief.newEff}%</strong> ({relief.newEff-relief.currentEff}% gain). Bottleneck capacity rises from {selected.target} to {relief.newBn} pcs/shift.</div>
+                  </div>
+                  <div style={{display:'flex',gap:6,flexShrink:0,alignSelf:'center'}}>
+                    <button className="btn btn-sm btn-success" onClick={applyRelief}>Apply move</button>
+                    <button className="btn btn-sm" onClick={()=>setReliefApplied(true)}>Dismiss</button>
+                  </div>
+                </div>
+              )}
+              
+              <div className="save-bar">
+                <div className="save-bar-label">
+                  <strong>Save as Line Design</strong>
+                  {selected.mp} operators · {selected.eff}% efficiency · {selected.target} pcs/shift · Bottleneck: {selected.bn}
+                </div>
+                <button className="btn btn-success" onClick={save}>Save line design</button>
+              </div>
+            </>
+          )}
+        </>
+      )}
+      {generated.length === 0 && <div className="note">Set min/max manpower and click Generate scenarios. The system generates one scenario per integer manpower value.</div>}
+    </>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 4 — DEPLOYMENT PLANNING & ASSIGNMENT DASHBOARD
+════════════════════════════════════════════════════════════════ */
+const AssignmentDashboard = ({data,toast,onDeploy,onActivate,trainingFlags,onShowTraining}) => {
+  const [statusFilter,setStatusFilter] = useState('');
+  
+  // Build dashboard from LDs grouped by line
+  const lines = data.lines.filter(l=>l.status==='Active');
+  const rows = lines.map(l => {
+    const activeLD = data.lineDesigns.find(ld => ld.line === l.num && ld.status === 'Active');
+    const pendingLD = data.lineDesigns.find(ld => ld.line === l.num && ld.status === 'Pending');
+    return {
+      line:l.num, fac:l.fac, div:l.div, shift:l.shift,
+      activeLD, pendingLD,
+      ldMP:activeLD?.mp || pendingLD?.mp || '—',
+      ldEff:activeLD?.eff || pendingLD?.eff || '—',
+      activeMP:activeLD ? activeLD.mp-2 : '—',
+      activeEff:activeLD ? activeLD.eff-4 : '—',
+    };
+  });
+  
+  const filtered = rows.filter(r => {
+    if (statusFilter === 'active' && !r.activeLD) return false;
+    if (statusFilter === 'pending' && !r.pendingLD) return false;
+    return true;
+  });
+  
+  return (
+    <>
+      <div className="section-header">
+        <div className="filter-row" style={{margin:0}}>
+          <select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
+            <option value="">All lines</option>
+            <option value="active">Active only</option>
+            <option value="pending">Pending only</option>
+          </select>
+        </div>
+        <button className="btn" style={{borderColor:'#c4a8f0',color:'#5b21b6',background:'#f3f0ff'}} onClick={onShowTraining}>✦ Training register ({trainingFlags.filter(t=>t.status==='open').length})</button>
+      </div>
+      <div className="note">All physical lines · planned (Line Design) vs actual (last deployment). Activate plans from this dashboard.</div>
+      <div className="card">
+        <div className="scroll-x">
+          <table>
+            <thead>
+              <tr>
+                <th>Line</th><th>Factory</th><th>Active LD</th>
+                <th>LD MP</th><th>LD Eff</th>
+                <th>Active MP</th><th>Active Eff</th>
+                <th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((r,i)=>(
+                <tr key={i}>
+                  <td><strong>{r.line}</strong></td><td>{r.fac}</td>
+                  <td style={{fontSize:11}}>{r.activeLD?.id || r.pendingLD?.id || <span style={{color:'#aaa'}}>No design</span>}</td>
+                  <td>{r.ldMP}</td>
+                  <td>{r.ldEff !== '—' ? <span className={skillClass(r.ldEff)}>{r.ldEff}%</span> : '—'}</td>
+                  <td>{r.activeMP}</td>
+                  <td>{r.activeEff !== '—' ? <span className={skillClass(r.activeEff)}>{r.activeEff}%</span> : '—'}</td>
+                  <td>{r.activeLD ? <span className="badge bs">Active</span> : r.pendingLD ? <span className="badge bw">Pending</span> : <span className="badge bg">No design</span>}</td>
+                  <td>
+                    <div style={{display:'flex',gap:4}}>
+                      {r.activeLD && <button className="btn btn-sm btn-primary" onClick={()=>onDeploy(r.activeLD)}>Deploy →</button>}
+                      {r.pendingLD && <button className="btn btn-sm btn-success" onClick={()=>onActivate(r.pendingLD)}>Activate</button>}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const DeploymentPlanning = ({ld,onBack,toast,onFlagTraining}) => {
+  const ops = OB_OPERATIONS[ld.obId] || OB_OPERATIONS['SHT-4821'];
+  
+  // Initial assignment
+  const opAssignments = useMemo(() => {
+    const used = new Set();
+    return ops.map(op => {
+      // Find operator with skill on this op
+      const candidates = OPERATORS.filter(emp => !used.has(emp.id) && emp.skills[op.name] != null).sort((a,b) => (b.skills[op.name] || 0) - (a.skills[op.name] || 0));
+      if (candidates.length) {
+        used.add(candidates[0].id);
+        return {...op, operator: candidates[0], skillPct: candidates[0].skills[op.name], match:'direct'};
+      }
+      return {...op, operator: null, skillPct: null, match:'none'};
+    });
+  }, [ld]);
+  
+  const [assignments,setAssignments] = useState(opAssignments);
+  const [selectedOpIdx,setSelectedOpIdx] = useState(null);
+  
+  const requiredSkill = 80;
+  const flagFor = (a) => {
+    if (!a.operator) return {cls:'gap-red', flag:'Uncovered'};
+    if (a.match === 'adjacent') return {cls:'gap-blue', flag:'Adjacent only'};
+    if (a.skillPct < requiredSkill) return {cls:'gap-amber', flag:'Partial cover'};
+    return {cls:'gap-green', flag:'No gap'};
+  };
+  
+  const eff = useMemo(()=>{
+    const valid = assignments.filter(a => a.operator);
+    if (!valid.length) return 0;
+    return Math.round(valid.reduce((s,a)=>s+(a.skillPct||0),0)/valid.length);
+  },[assignments]);
+  
+  const gapCount = assignments.filter(a => !a.operator || a.skillPct < requiredSkill).length;
+  
+  const assignOperator = (opIdx, operator) => {
+    const op = assignments[opIdx];
+    const skillOnOp = operator.skills[op.name];
+    setAssignments(assignments.map((a,i)=> i===opIdx ? {
+      ...a,
+      operator,
+      skillPct: skillOnOp != null ? skillOnOp : Math.max(...Object.values(operator.skills))-15,
+      match: skillOnOp != null ? 'direct' : 'adjacent'
+    } : a));
+    toast('Assigned '+operator.name,'success');
+  };
+  
+  // Manpower panel — when an op is selected
+  const selectedOp = selectedOpIdx !== null ? assignments[selectedOpIdx] : null;
+  const usedIds = new Set(assignments.filter(a=>a.operator).map(a=>a.operator.id));
+  
+  const candidatesFor = (opName) => {
+    if (!opName) return {direct:[],adjacent:[],absent:[]};
+    const directPresent = OPERATORS.filter(e => !usedIds.has(e.id) && !e.absent && e.skills[opName] != null).sort((a,b)=>b.skills[opName]-a.skills[opName]);
+    const adjacent = OPERATORS.filter(e => !usedIds.has(e.id) && !e.absent && e.skills[opName] == null && Object.keys(e.skills).length > 0).slice(0,3);
+    const absent = OPERATORS.filter(e => !usedIds.has(e.id) && e.absent && e.skills[opName] != null);
+    return {directPresent, adjacent, absent};
+  };
+  
+  return (
+    <>
+      <div className="ob-banner">
+        <button className="btn btn-sm" onClick={onBack}>← Dashboard</button>
+        <div className="ob-banner-item"><span>Line Design</span><strong>{ld.id}</strong></div>
+        <div className="ob-banner-item"><span>Line</span><strong>{ld.line}</strong></div>
+        <div className="ob-banner-item"><span>Style</span><strong>{ld.style}</strong></div>
+      </div>
+      
+      <div className="eff-header">
+        <div className="eff-block"><div className="eff-block-label">Expected eff %</div><div className="eff-block-value"><span className={skillClass(eff)}>{eff}%</span></div></div>
+        <div className="eff-block"><div className="eff-block-label">Target output</div><div className="eff-block-value">2,640</div><div className="eff-block-sub">pcs/shift</div></div>
+        <div className="eff-block"><div className="eff-block-label">Bottleneck</div><div className="eff-block-value" style={{fontSize:14}}>{ld.bn}</div></div>
+        <div className="eff-block"><div className="eff-block-label">Manpower</div><div className="eff-block-value">{assignments.filter(a=>a.operator).length}<span style={{fontSize:14,color:'#888'}}>/{assignments.length}</span></div></div>
+        <div className="eff-block"><div className="eff-block-label">Skill gaps</div><div className="eff-block-value" style={{color: gapCount > 0 ? '#b71c1c':'#2e7d32'}}>{gapCount}</div></div>
+      </div>
+      
+      <div className="split">
+        <div className="card">
+          <div className="card-header"><div className="card-header-title">Operation assignments</div></div>
+          <div className="scroll-x">
+            <table>
+              <thead><tr><th>Seq</th><th>Operation</th><th>Skill req</th><th>Operator</th><th>Skill %</th><th>Gap</th><th>Actions</th></tr></thead>
+              <tbody>
+                {assignments.map((a,i)=>{
+                  const f = flagFor(a);
+                  return (
+                    <tr key={i} style={{cursor:'pointer',background: i===selectedOpIdx?'#e8f0fe':''}} onClick={()=>setSelectedOpIdx(i)}>
+                      <td><strong>{a.seq}</strong></td>
+                      <td>{a.name}</td>
+                      <td>{requiredSkill}%</td>
+                      <td>
+                        {a.operator ? (
+                          <div style={{display:'flex',alignItems:'center',gap:6}}>
+                            <Avatar name={a.operator.name} color={a.operator.color}/>
+                            <span style={{fontSize:12}}>{a.operator.name}</span>
+                          </div>
+                        ) : <span style={{color:'#b71c1c',fontSize:11}}>UNASSIGNED</span>}
+                      </td>
+                      <td>{a.skillPct != null ? <span className={skillClass(a.skillPct)}>{a.skillPct}%</span> : '—'}</td>
+                      <td><span className={'gap-dot '+f.cls}></span><span style={{fontSize:11}}>{f.flag}</span></td>
+                      <td>
+                        {(!a.operator || a.skillPct < requiredSkill) && (
+                          <button className="btn btn-xs" style={{borderColor:'#c4a8f0',color:'#5b21b6'}} onClick={(e)=>{e.stopPropagation();onFlagTraining(a);}}>✦ Flag</button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div className="mp-panel">
+          <div className="mp-panel-header">
+            <div className="mp-panel-title">Available manpower</div>
+            <div className="mp-panel-context">{selectedOp ? 'For: '+selectedOp.name : 'Click an operation row to see options'}</div>
+          </div>
+          <div className="mp-panel-body">
+            {!selectedOp && <div className="mp-empty">Select an operation to view ranked replacements</div>}
+            {selectedOp && (() => {
+              const c = candidatesFor(selectedOp.name);
+              return (
+                <>
+                  <div className="mp-section-label">Direct skill match — present</div>
+                  {c.directPresent.length ? c.directPresent.map(e => (
+                    <div key={e.id} className="mp-row" onClick={()=>assignOperator(selectedOpIdx, e)}>
+                      <Avatar name={e.name} color={e.color}/>
+                      <div className="mp-name">{e.name}<div className="mp-meta">{e.id}</div></div>
+                      <div className={'mp-skill '+skillClass(e.skills[selectedOp.name])}>{e.skills[selectedOp.name]}%</div>
+                    </div>
+                  )) : <div style={{fontSize:11,color:'#aaa',padding:'4px 8px'}}>No direct matches available</div>}
+                  
+                  <div className="mp-section-label">Adjacent skill match — present</div>
+                  {c.adjacent.length ? c.adjacent.map(e => (
+                    <div key={e.id} className="mp-row" onClick={()=>assignOperator(selectedOpIdx, e)}>
+                      <Avatar name={e.name} color={e.color}/>
+                      <div className="mp-name">{e.name}<div className="mp-meta">Adjacent skill</div></div>
+                      <div className={'mp-skill '+skillClass(Math.max(...Object.values(e.skills))-15)}>~{Math.max(...Object.values(e.skills))-15}%</div>
+                    </div>
+                  )) : <div style={{fontSize:11,color:'#aaa',padding:'4px 8px'}}>None</div>}
+                  
+                  <div className="mp-section-label">Absent today</div>
+                  {c.absent.length ? c.absent.map(e => (
+                    <div key={e.id} className="mp-row absent" onClick={()=>assignOperator(selectedOpIdx, e)}>
+                      <Avatar name={e.name} color={e.color}/>
+                      <div className="mp-name">{e.name}<div className="mp-meta">Absent · for late arrivals</div></div>
+                      <div className={'mp-skill '+skillClass(e.skills[selectedOp.name])}>{e.skills[selectedOp.name]}%</div>
+                    </div>
+                  )) : <div style={{fontSize:11,color:'#aaa',padding:'4px 8px'}}>None absent</div>}
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      </div>
+      
+      <div className="save-bar">
+        <div className="save-bar-label">
+          <strong>Save & activate</strong>
+          When activated, this plan pushes to the supervisor's Phase 5 tablet interface
+        </div>
+        <button className="btn" onClick={onBack}>Save draft</button>
+        <button className="btn btn-success" onClick={()=>{toast('Plan activated — supervisor notified','success');onBack();}}>Activate plan →</button>
+      </div>
+    </>
+  );
+};
+
+const TrainingRegister = ({flags,onClose,toast}) => (
+  <div className="tr-panel open">
+    <div className="tr-header">
+      <div>
+        <div className="tr-title">✦ Training register</div>
+        <div style={{fontSize:11,color:'#8ab4f8',marginTop:2}}>Open flags · ranked by operational frequency</div>
+      </div>
+      <button className="modal-close" onClick={onClose}>×</button>
+    </div>
+    <div className="tr-body">
+      {flags.filter(f => f.status === 'open').length === 0 && <div className="mp-empty">No open training flags</div>}
+      {flags.filter(f => f.status === 'open').map((f,i) => (
+        <div key={i} className="tr-item">
+          <div className="tr-item-name">{f.empName}</div>
+          <div className="tr-item-op">{f.opName} · Current {f.currentSkill}% / Required {f.requiredSkill}%</div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:10,color:'#888'}}>Flagged {f.flaggedAt}</span>
+            <button className="btn btn-xs" onClick={()=>toast('Auto-closes when CT improves in Phase 6','info')}>Details</button>
+          </div>
+        </div>
+      ))}
+      <div style={{fontSize:11,color:'#888',marginTop:12,padding:'8px 4px',lineHeight:1.5}}>Flags automatically close when Phase 6 CT capture confirms the operator has crossed the required Skill % threshold.</div>
+    </div>
+  </div>
+);
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 5 — DAILY BALANCING (tablet-responsive)
+════════════════════════════════════════════════════════════════ */
+const DailyBalancing = ({data,toast,onOpenCT}) => {
+  // Build deployment from active LD
+  const activeLD = data.lineDesigns.find(l=>l.status==='Active') || data.lineDesigns[0];
+  const ops = OB_OPERATIONS[activeLD.obId] || OB_OPERATIONS['SHT-4821'];
+  
+  // Initial deployment with some absences
+  const initialDeployment = useMemo(()=>{
+    const used = new Set();
+    return ops.map(op => {
+      const candidates = OPERATORS.filter(emp => !used.has(emp.id) && emp.skills[op.name] != null).sort((a,b)=>(b.skills[op.name]||0)-(a.skills[op.name]||0));
+      const op2 = {...op, assigned: []};
+      if (candidates.length > 0) {
+        const primary = candidates[0];
+        used.add(primary.id);
+        op2.assigned.push({...primary, skillPct: primary.skills[op.name], isAutoFill:false});
+      }
+      return op2;
+    });
+  },[activeLD]);
+  
+  const [deployment,setDeployment] = useState(initialDeployment);
+  const [showAutoFillBanner,setShowAutoFillBanner] = useState(true);
+  const [selectedOpIdx,setSelectedOpIdx] = useState(null);
+  const [countdown,setCountdown] = useState(450); // 7:30 mins to shift start
+  const [saved,setSaved] = useState(false);
+  
+  // Detect absences
+  const absentOnLine = deployment.flatMap(op => op.assigned.filter(a => a.absent));
+  const gapCount = deployment.filter(op => op.assigned.length === 0 || op.assigned.some(a=>a.absent && !op.assigned.some(b=>!b.absent))).length;
+  
+  // Countdown timer
+  useEffect(()=>{
+    if (countdown <= 0) return;
+    const t = setTimeout(()=>setCountdown(c=>c-1),1000);
+    return ()=>clearTimeout(t);
+  },[countdown]);
+  
+  const fmtTime = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
+  const urgencyClass = countdown <= 120 ? {bg:'#fdecea',col:'#b71c1c',bd:'#ef9a9a'} : countdown <= 300 ? {bg:'#fff8e1',col:'#b45309',bd:'#ffe082'} : {bg:'#fff',col:'#1a1a1a',bd:'#e5e5e5'};
+  
+  // Auto-fill logic
+  const runAutoFill = () => {
+    const usedIds = new Set(deployment.flatMap(o=>o.assigned.filter(a=>!a.absent).map(a=>a.id)));
+    const filled = deployment.map(op => {
+      const hasAbsent = op.assigned.some(a => a.absent);
+      const hasPresentOnly = op.assigned.length > 0 && !hasAbsent;
+      if (hasPresentOnly) return op;
+      // Find replacement
+      const candidates = OPERATORS.filter(e => !usedIds.has(e.id) && !e.absent && e.skills[op.name] != null).sort((a,b)=>b.skills[op.name]-a.skills[op.name]);
+      if (candidates.length) {
+        const r = candidates[0];
+        usedIds.add(r.id);
+        return {...op, assigned: [...op.assigned, {...r, skillPct:r.skills[op.name], isAutoFill:true}]};
+      }
+      return op;
+    });
+    setDeployment(filled);
+  };
+  
+  // Approve all auto-fills
+  const approveAll = () => {
+    setDeployment(deployment.map(op => ({...op, assigned: op.assigned.map(a=>({...a,isAutoFill:false}))})));
+    setShowAutoFillBanner(false);
+    toast('All auto-fills approved','success');
+  };
+  
+  // Run auto-fill on mount if there are absences
+  useEffect(()=>{
+    if (absentOnLine.length > 0 && deployment.every(op => op.assigned.every(a=>!a.isAutoFill))) {
+      runAutoFill();
+    }
+  },[]);
+  
+  const autoFilledOps = deployment.filter(op => op.assigned.some(a => a.isAutoFill));
+  
+  const candidatesFor = (opName) => {
+    if (!opName) return {present:[],adjacent:[],absent:[]};
+    const usedIds = new Set(deployment.flatMap(o=>o.assigned.map(a=>a.id)));
+    const present = OPERATORS.filter(e => !usedIds.has(e.id) && !e.absent && e.skills[opName] != null).sort((a,b)=>b.skills[opName]-a.skills[opName]);
+    const adjacent = OPERATORS.filter(e => !usedIds.has(e.id) && !e.absent && e.skills[opName] == null && Object.keys(e.skills).length>0).slice(0,2);
+    const absent = OPERATORS.filter(e => !usedIds.has(e.id) && e.absent && e.skills[opName] != null);
+    return {present, adjacent, absent};
+  };
+  
+  const swapAssignment = (opIdx, operator) => {
+    const op = deployment[opIdx];
+    setDeployment(deployment.map((d,i)=>i===opIdx ? {
+      ...d,
+      assigned: [{...operator, skillPct:operator.skills[op.name] || 70, isAutoFill:false}]
+    } : d));
+    toast('Swapped to '+operator.name,'success');
+  };
+  
+  const totalSkill = deployment.reduce((s,op) => {
+    const valid = op.assigned.filter(a=>!a.absent);
+    if (!valid.length) return s;
+    return s + valid.reduce((s2,a)=>s2+(a.skillPct||0),0)/valid.length;
+  },0);
+  const liveEff = Math.round(totalSkill/deployment.length);
+  
+  const saveDeployment = () => {
+    setSaved(true);
+    toast('Deployment saved and locked for today ✓','success');
+  };
+  
+  return (
+    <>
+      <div className="ob-banner">
+        <div className="ob-banner-item"><span>Line</span><strong>{activeLD.line}</strong></div>
+        <div className="ob-banner-item"><span>Style</span><strong>{activeLD.style}</strong></div>
+        <div className="ob-banner-item"><span>LD</span><strong style={{fontSize:11}}>{activeLD.id}</strong></div>
+        <div className="ob-banner-item"><span>Shift</span><strong>General · 08:00–17:00</strong></div>
+        <div className="ob-banner-item"><span>Date</span><strong>{new Date().toLocaleDateString('en-GB')}</strong></div>
+      </div>
+      
+      <div className="urgency-bar" style={{background:urgencyClass.bg, borderColor:urgencyClass.bd}}>
+        <div>
+          <div className="urgency-label" style={{color:urgencyClass.col}}>Shift starts in</div>
+          <div className="urgency-timer" style={{color:urgencyClass.col}}>{fmtTime(countdown)}</div>
+        </div>
+        <div style={{width:1,height:32,background:urgencyClass.bd}}/>
+        <div>
+          <div className="urgency-label" style={{color:urgencyClass.col}}>Unresolved gaps</div>
+          <div style={{fontSize:18,fontWeight:600,color:urgencyClass.col}}>{autoFilledOps.length}</div>
+        </div>
+        <div className="urgency-gaps" style={{color:urgencyClass.col}}>
+          {autoFilledOps.length === 0 && countdown > 0 ? '✓ All gaps filled' : countdown <= 120 ? '⚠ Shift starting' : ''}
+        </div>
+      </div>
+      
+      {showAutoFillBanner && autoFilledOps.length > 0 && (
+        <div className="autofill-banner">
+          <div className="autofill-icon">✦</div>
+          <div className="autofill-body">
+            <div className="autofill-title">{autoFilledOps.length} absence{autoFilledOps.length>1?'s':''} detected — auto-filled <span className="devx-badge" style={{background:'#fff',color:'#1a3a6b'}}>Intelligence</span></div>
+            <div className="autofill-sub">
+              {autoFilledOps.slice(0,2).map((op,i)=>(
+                <div key={i}>• {op.assigned.filter(a=>a.isAutoFill).map(a=>a.name+' ('+a.skillPct+'%)').join(', ')} → {op.name}</div>
+              ))}
+              {autoFilledOps.length > 2 && <div>+ {autoFilledOps.length - 2} more</div>}
+            </div>
+          </div>
+          <div className="autofill-actions">
+            <button className="btn-approve-all" onClick={approveAll}>Approve all</button>
+            <button className="btn btn-sm" style={{background:'transparent',color:'#fff',borderColor:'#8ab4f8'}} onClick={()=>setShowAutoFillBanner(false)}>Review individually</button>
+          </div>
+        </div>
+      )}
+      
+      <div className="split">
+        <div className="card">
+          <div className="card-header"><div className="card-header-title">Operations</div></div>
+          <div className="daily-header-row">
+            <div>Seq</div><div>Operation</div><div>SMV</div><div>Skill req</div><div>Status</div><div>Operator(s)</div>
+          </div>
+          {deployment.map((op,i)=>{
+            const hasAutoFill = op.assigned.some(a=>a.isAutoFill);
+            return (
+              <div key={i} className={'daily-op-row '+(i===selectedOpIdx?'selected':'')} onClick={()=>setSelectedOpIdx(i)}>
+                <div className={'seq-circle '+(hasAutoFill?'has-absent':'')}>{op.seq}</div>
+                <div><strong>{op.name}</strong></div>
+                <div>{op.smv.toFixed(2)}</div>
+                <div>80%</div>
+                <div>{op.assigned.length === 0 ? <span className="badge bd">Gap</span> : hasAutoFill ? <span className="badge bw">Auto</span> : <span className="badge bs">OK</span>}</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
+                  {op.assigned.map((a,j)=>(
+                    <div key={j} className={'op-chip '+(a.isAutoFill?'auto-filled':a.absent?'absent':'')}>
+                      <Avatar name={a.name} color={a.color}/>
+                      <span>{a.name}</span>
+                      <span className={skillClass(a.skillPct)}>{a.skillPct}%</span>
+                      {a.isAutoFill && <span style={{fontSize:9,marginLeft:2}}>AUTO</span>}
+                    </div>
+                  ))}
+                  <button className="btn btn-xs" style={{padding:'2px 6px'}} onClick={(e)=>{e.stopPropagation();onOpenCT(op,op.assigned[0]);}}>📊 CT</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        <div className="mp-panel">
+          <div className="mp-panel-header">
+            <div className="mp-panel-title">Available manpower</div>
+            <div className="mp-panel-context">{selectedOpIdx !== null ? 'Tap to swap on '+deployment[selectedOpIdx].name : 'Tap an operation to see options'}</div>
+          </div>
+          <div className="mp-panel-body">
+            {selectedOpIdx === null && <div className="mp-empty">Tap any operation row</div>}
+            {selectedOpIdx !== null && (() => {
+              const c = candidatesFor(deployment[selectedOpIdx].name);
+              return (
+                <>
+                  <div className="mp-section-label">Direct match · present ({c.present.length})</div>
+                  {c.present.length ? c.present.map(e => (
+                    <div key={e.id} className="mp-row" onClick={()=>swapAssignment(selectedOpIdx, e)}>
+                      <Avatar name={e.name} color={e.color}/>
+                      <div className="mp-name">{e.name}<div className="mp-meta">{e.id}</div></div>
+                      <div className={'mp-skill '+skillClass(e.skills[deployment[selectedOpIdx].name])}>{e.skills[deployment[selectedOpIdx].name]}%</div>
+                    </div>
+                  )) : <div style={{fontSize:11,color:'#aaa',padding:'4px 8px'}}>None available</div>}
+                  
+                  <div className="mp-section-label">Adjacent match · present ({c.adjacent.length})</div>
+                  {c.adjacent.map(e => (
+                    <div key={e.id} className="mp-row" onClick={()=>swapAssignment(selectedOpIdx, e)}>
+                      <Avatar name={e.name} color={e.color}/>
+                      <div className="mp-name">{e.name}<div className="mp-meta">Adjacent</div></div>
+                      <div className={'mp-skill '+skillClass(Math.max(...Object.values(e.skills))-15)}>~{Math.max(...Object.values(e.skills))-15}%</div>
+                    </div>
+                  ))}
+                  
+                  <div className="mp-section-label">Absent today ({c.absent.length})</div>
+                  {c.absent.map(e => (
+                    <div key={e.id} className="mp-row absent" onClick={()=>swapAssignment(selectedOpIdx, e)}>
+                      <Avatar name={e.name} color={e.color}/>
+                      <div className="mp-name">{e.name}<div className="mp-meta">For late arrivals</div></div>
+                      <div className={'mp-skill '+skillClass(e.skills[deployment[selectedOpIdx].name])}>{e.skills[deployment[selectedOpIdx].name]}%</div>
+                    </div>
+                  ))}
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      </div>
+      
+      <div className="summary-bar">
+        <div className="summary-item"><div className="s-label">Live efficiency</div><div className="s-value"><span className={skillClass(liveEff)}>{liveEff}%</span></div></div>
+        <div style={{width:1,height:36,background:'#c7d7f5'}}/>
+        <div className="summary-item"><div className="s-label">Present</div><div className="s-value">{deployment.filter(o=>o.assigned.length>0).length}/{deployment.length}</div></div>
+        <div style={{width:1,height:36,background:'#c7d7f5'}}/>
+        <div className="summary-item"><div className="s-label">Status</div><div className="s-value" style={{fontSize:14}}>{saved ? '🔒 Locked' : 'Draft'}</div></div>
+        <div className="summary-actions">
+          {!saved && <button className="btn btn-success" onClick={saveDeployment}>Save & lock deployment</button>}
+          {saved && <button className="btn" onClick={()=>{setSaved(false);toast('Edit unlocked — override reason required on save','warn');}}>Override edit</button>}
+        </div>
+      </div>
+    </>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 6 — CYCLE TIME CAPTURE
+════════════════════════════════════════════════════════════════ */
+const CTCaptureModal = ({op,operator,onClose,onSave,toast}) => {
+  const [ct,setCt] = useState('');
+  const skillPct = ct && parseFloat(ct) > 0 ? Math.round((op.smv / parseFloat(ct)) * 100) : null;
+  const result = skillPct == null ? null : skillPct >= 90 ? 'good' : skillPct >= 70 ? 'warn' : 'bad';
+  
+  const save = () => {
+    if (!ct || parseFloat(ct) <= 0) { toast('Cycle time must be > 0','warn'); return; }
+    const ctVal = parseFloat(ct);
+    if (ctVal > op.smv * 10) {
+      if (!confirm('CT is 10x the SMV — are you sure?')) return;
+    }
+    onSave({op:op.name, operator:operator.name, opCode:op.opCode, empId:operator.id, ct:ctVal, smv:op.smv, skillPct, observedAt:new Date()});
+    
+    // Check for milestone
+    if (skillPct >= 90) {
+      toast('🎯 Milestone reached — '+operator.name+' crossed 90% on '+op.name,'success');
+    } else if (skillPct >= 85) {
+      toast('Milestone progress — '+operator.name+' approaching 90%','info');
+    } else {
+      toast('CT saved · Skill % updated to '+skillPct+'%','success');
+    }
+    onClose();
+  };
+  
+  return (
+    <Modal title="Capture cycle time" sub={op.name+' · '+operator.name} onClose={onClose}
+      footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn btn-success" onClick={save} disabled={!ct}>Save observation</button></>}>
+      <div className="form-grid">
+        <div className="field"><label>Operator</label><input value={operator.name+' ('+operator.id+')'} disabled/></div>
+        <div className="field"><label>Operation</label><input value={op.name+' ('+op.opCode+')'} disabled/></div>
+        <div className="field"><label>SMV (min)</label><input value={op.smv.toFixed(4)} disabled/></div>
+        <div className="field"><label>Date</label><input type="date" defaultValue={new Date().toISOString().split('T')[0]}/></div>
+        <div className="field" style={{gridColumn:'1/-1'}}>
+          <label>Observed cycle time (minutes) *</label>
+          <input type="number" step="0.01" value={ct} onChange={e=>setCt(e.target.value)} placeholder="e.g. 1.25" autoFocus/>
+        </div>
+      </div>
+      {skillPct != null && (
+        <div className={'skill-result '+result} style={{marginTop:12}}>
+          <div>
+            <div className="skill-result-label">Calculated Skill %</div>
+            <div style={{fontSize:11,color:'#888',marginTop:2}}>SMV ({op.smv.toFixed(2)}) ÷ CT ({parseFloat(ct).toFixed(2)}) × 100</div>
+          </div>
+          <div className="skill-result-value" style={{color:skillColor(skillPct)}}>{skillPct}%</div>
+        </div>
+      )}
+      <div style={{fontSize:11,color:'#888',marginTop:6,padding:'6px 0'}}>Observer: {ROLES.Supervisor.email}. Auto-stamped on save.</div>
+    </Modal>
+  );
+};
+
+const CapturePriorityScreen = ({toast,onOpenCT}) => {
+  // Mock prioritisation: bottleneck ops with operators having no/stale observations
+  const items = [
+    {operator:OPERATORS[12], op:{opCode:'SHT-002',name:'Collar attach',smv:1.20}, reason:'Bottleneck on L-101 · 0 observations'},
+    {operator:OPERATORS[3], op:{opCode:'SHT-002',name:'Collar attach',smv:1.20}, reason:'Stale (>180 days) · Bottleneck op'},
+    {operator:OPERATORS[7], op:{opCode:'SHT-003',name:'Sleeve attach',smv:1.45}, reason:'Bottleneck on L-102'},
+    {operator:OPERATORS[15], op:{opCode:'SHT-003',name:'Sleeve attach',smv:1.45}, reason:'Only 1 observation in 60 days'},
+    {operator:OPERATORS[13], op:{opCode:'SHT-002',name:'Collar attach',smv:1.20}, reason:'New operator · no baseline'},
+  ];
+  
+  return (
+    <>
+      <div className="devx-banner">
+        <span style={{fontSize:16}}>✦</span>
+        <div style={{flex:1}}>
+          <div style={{fontSize:12,fontWeight:600,color:'#5b21b6'}}>AI capture prioritisation</div>
+          <div style={{fontSize:11,color:'#7c3aed'}}>Who to observe today — ranked by operational criticality, observation count, and data freshness</div>
+        </div>
+      </div>
+      
+      <div className="note">The same 10 minutes spent observing operators is far more valuable when directed at the operations that need the data most. Bottleneck operations and operators with no recent observations rank highest.</div>
+      
+      <div className="card">
+        <div className="card-header">
+          <div className="card-header-title">Capture priority — {items.length} suggestions</div>
+          <div style={{fontSize:11,color:'#888'}}>Ranked by impact · refreshes hourly</div>
+        </div>
+        <div style={{padding:14}}>
+          {items.map((item,i)=>(
+            <div key={i} className="capture-priority-item">
+              <div style={{fontSize:11,fontWeight:600,color:'#5b21b6',background:'#f3f0ff',width:24,height:24,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{i+1}</div>
+              <Avatar name={item.operator.name} color={item.operator.color}/>
+              <div style={{flex:1,minWidth:120}}>
+                <div style={{fontSize:13,fontWeight:500}}>{item.operator.name}</div>
+                <div style={{fontSize:11,color:'#888'}}>{item.op.name} · SMV {item.op.smv.toFixed(2)}</div>
+              </div>
+              <div className="cp-reason">{item.reason}</div>
+              <button className="btn btn-sm btn-primary" onClick={()=>onOpenCT(item.op, item.operator)}>Capture CT</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+};
+
+const SkillHistory = ({observations,toast}) => {
+  // Mock historical data for trend cards
+  const trendData = [
+    {emp:OPERATORS[0], op:'Front placket attach', history:[105,107,108,108,109,109], current:109, trend:'up'},
+    {emp:OPERATORS[1], op:'Collar attach', history:[78,80,82,83,84,84], current:84, trend:'up'},
+    {emp:OPERATORS[2], op:'Collar attach', history:[72,71,70,69,68,68], current:68, trend:'down'},
+    {emp:OPERATORS[5], op:'Sleeve attach', history:[92,93,94,94,95,95], current:95, trend:'up'},
+  ];
+  
+  return (
+    <>
+      <div className="note">All cycle time observations · per operator per operation · trend per recent vs previous observations</div>
+      <div className="filter-row">
+        <select><option>All operations</option><option>Collar attach</option><option>Sleeve attach</option></select>
+        <select><option>All operators</option></select>
+        <select><option>Last 90 days</option><option>Last 30 days</option><option>All time</option></select>
+        <div style={{marginLeft:'auto'}}><button className="btn btn-sm" onClick={()=>toast('Exporting...','info')}>Export to Excel</button></div>
+      </div>
+      
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:12,marginBottom:14}}>
+        {trendData.map((t,i)=>{
+          const min = Math.min(...t.history);
+          const max = Math.max(...t.history);
+          return (
+            <div key={i} className="trend-card">
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                <Avatar name={t.emp.name} color={t.emp.color}/>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:12,fontWeight:600}}>{t.emp.name}</div>
+                  <div style={{fontSize:10,color:'#888'}}>{t.op}</div>
+                </div>
+                <div style={{fontSize:18,fontWeight:700,color:skillColor(t.current)}}>{t.current}%</div>
+              </div>
+              <div className="sparkline">
+                {t.history.map((v,j)=>(
+                  <div key={j} className="spark-bar" style={{height:((v-min)/(max-min)*30+6)+'px', background:skillColor(v)}}/>
+                ))}
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'#888'}}>
+                <span>{t.history.length} observations</span>
+                <span>{t.trend === 'up' ? '↑ Improving' : t.trend === 'down' ? '↓ Declining' : '→ Stable'}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      
+      <div className="card">
+        <div className="card-header"><div className="card-header-title">All observations</div></div>
+        <div className="scroll-x">
+          <table>
+            <thead><tr><th>Date</th><th>Operator</th><th>Operation</th><th>SMV</th><th>CT</th><th>Skill %</th><th>Trend</th><th>Observer</th></tr></thead>
+            <tbody>
+              <tr><td>Today 10:42</td><td>Meena R.</td><td>Front placket</td><td>0.85</td><td>0.78</td><td><span className="skill-hi">109%</span></td><td>↑</td><td style={{fontSize:11,color:'#888'}}>sup.rajesh@arvind.com</td></tr>
+              <tr><td>Today 10:35</td><td>Priya S.</td><td>Collar attach</td><td>1.20</td><td>1.43</td><td><span className="skill-mid">84%</span></td><td>↑</td><td style={{fontSize:11,color:'#888'}}>sup.rajesh@arvind.com</td></tr>
+              <tr><td>Today 10:20</td><td>Ravi K.</td><td>Collar attach</td><td>1.20</td><td>1.76</td><td><span className="skill-lo">68%</span></td><td>↓</td><td style={{fontSize:11,color:'#888'}}>sup.rajesh@arvind.com</td></tr>
+              <tr><td>Yesterday 16:14</td><td>Geetha S.</td><td>Sleeve attach</td><td>1.45</td><td>1.53</td><td><span className="skill-hi">95%</span></td><td>↑</td><td style={{fontSize:11,color:'#888'}}>sup.rajesh@arvind.com</td></tr>
+              <tr><td>Yesterday 15:38</td><td>Babu T.</td><td>Button attach</td><td>0.95</td><td>0.96</td><td><span className="skill-hi">99%</span></td><td>→</td><td style={{fontSize:11,color:'#888'}}>sup.rajesh@arvind.com</td></tr>
+              <tr><td>2 days ago</td><td>Nanda K.</td><td>Collar attach</td><td>1.20</td><td>1.54</td><td><span className="skill-mid">78%</span></td><td>→</td><td style={{fontSize:11,color:'#888'}}>sup.rajesh@arvind.com</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════════
+   MAIN APP
+════════════════════════════════════════════════════════════════ */
+const App = () => {
+  const [role,setRole] = useState('Admin');
+  const [data,setData] = useState(INITIAL_DATA);
+  const [view,setView] = useState('masters');
+  const [obData,setObData] = useState(null); // current OB being edited/created
+  const [obMode,setObMode] = useState(null); // 'create' or 'edit'
+  const [showOBCreate,setShowOBCreate] = useState(false);
+  const [ldData,setLdData] = useState(null);
+  const [ldMode,setLdMode] = useState(null);
+  const [deployLD,setDeployLD] = useState(null);
+  const [toast,setToast] = useState(null);
+  const [showTrainingPanel,setShowTrainingPanel] = useState(false);
+  const [trainingFlags,setTrainingFlags] = useState([
+    {empName:'Ravi K.', opName:'Collar attach', currentSkill:68, requiredSkill:80, flaggedAt:'Today 09:14', status:'open'},
+    {empName:'Nanda K.', opName:'Collar attach', currentSkill:78, requiredSkill:80, flaggedAt:'Yesterday', status:'open'},
+    {empName:'Usha V.', opName:'Sleeve attach', currentSkill:76, requiredSkill:85, flaggedAt:'3 days ago', status:'open'},
+  ]);
+  const [ctModal,setCtModal] = useState(null); // {op, operator}
+  
+  const showToast = (message, type) => setToast({message, type, key: Date.now()});
+  
+  // Set default view per role
+  useEffect(()=>{
+    if (role === 'Admin') setView('masters');
+    else if (role === 'IE') setView('ob');
+    else setView('daily');
+  },[role]);
+  
+  const flagForTraining = (assignment) => {
+    if (!assignment.operator) {
+      showToast('Cannot flag — no operator assigned','warn');
+      return;
+    }
+    setTrainingFlags([{
+      empName: assignment.operator.name,
+      opName: assignment.name,
+      currentSkill: assignment.skillPct || 0,
+      requiredSkill: 80,
+      flaggedAt: 'Just now',
+      status:'open'
+    }, ...trainingFlags]);
+    showToast('Flagged '+assignment.operator.name+' for training on '+assignment.name+' ✓','success');
+  };
+  
+  // Topbar title
+  const titles = {
+    masters:{t:'Masters home',s:'All masters · Admin access'},
+    division:{t:'Division master',s:'Phase 1 · SAP-aligned'},
+    factory:{t:'Factory master',s:'Phase 1 · SAP-aligned'},
+    line:{t:'Line master',s:'Phase 1 · Shift config at line level'},
+    machine:{t:'Machine master',s:'Phase 1 · Factory-level'},
+    operation:{t:'Operation master',s:'Phase 1 · SMV + adjacent operations'},
+    skill:{t:'Employee skill master ✦',s:'Phase 1 · Skill % per operator per operation'},
+    integration:{t:'Integration health',s:'SAP + HRMS · sync runs and errors'},
+    ob:{t:'Operation bulletins',s:'Phase 2 · OBs for active styles'},
+    ld:{t:'Line design',s:'Phase 3 · Scenario generation engine'},
+    dashboard:{t:'Assignment dashboard',s:'Phase 4 · All lines · planned vs actual'},
+    deploy:{t:'Deployment planning',s:'Phase 4 · Skill-based assignment'},
+    daily:{t:'Daily balancing',s:'Phase 5 · Today\'s deployment ✦'},
+    'ct-priority':{t:'Capture priority ✦',s:'Phase 6 · Who to observe today'},
+    'ct-history':{t:'Skill history',s:'Phase 6 · CT observations and trends'},
+  };
+  const t = titles[view] || titles.masters;
+  
+  return (
+    <div className="app">
+      <Sidebar current={view} onNav={(v)=>{setView(v);setObMode(null);setLdMode(null);setDeployLD(null);}} role={role}/>
+      <div className="main">
+        <div className="topbar">
+          <div>
+            <div className="t-title">{t.t}</div>
+            <div className="t-meta">{t.s}</div>
+          </div>
+          <div className="topbar-right">
+            {(view === 'dashboard' || view === 'deploy') && role === 'IE' && (
+              <button className="btn btn-sm" style={{borderColor:'#c4a8f0',color:'#5b21b6',background:'#f3f0ff'}} onClick={()=>setShowTrainingPanel(true)}>
+                ✦ Training register ({trainingFlags.filter(t=>t.status==='open').length})
+              </button>
+            )}
+            <select value={role} onChange={e=>setRole(e.target.value)} style={{width:'auto',fontSize:12}}>
+              <option>Admin</option><option>IE</option><option>Supervisor</option>
+            </select>
+            <Avatar name={ROLES[role].label} color={ROLES[role].color}/>
+            <div style={{fontSize:11,color:'#888'}}>
+              <div style={{fontWeight:600,color:'#1a1a1a'}}>{ROLES[role].label}</div>
+              <div>{ROLES[role].email}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="content">
+          {view === 'masters' && <MastersHome data={data} onNav={setView}/>}
+          {view === 'division' && <DivisionMaster data={data} setData={setData} toast={showToast}/>}
+          {view === 'factory' && <FactoryMaster data={data} setData={setData} toast={showToast}/>}
+          {view === 'line' && <LineMaster data={data} setData={setData} toast={showToast}/>}
+          {view === 'machine' && <MachineMaster data={data} setData={setData} toast={showToast}/>}
+          {view === 'operation' && <OperationMaster data={data} setData={setData} toast={showToast}/>}
+          {view === 'skill' && <EmployeeSkillMaster toast={showToast}/>}
+          {view === 'integration' && <IntegrationHealth toast={showToast}/>}
+          
+          {view === 'ob' && !obMode && (
+            <OBList data={data} setData={setData}
+              toast={showToast}
+              onCreate={()=>setShowOBCreate(true)}
+              onEdit={(ob)=>{setObData({...ob, ops:OB_OPERATIONS[ob.id]||[]});setObMode('edit');}}
+              onCreateLD={(ob)=>{setLdData({ob,obOps:OB_OPERATIONS[ob.id]});setLdMode('create');setView('ld');}}
+            />
+          )}
+          {view === 'ob' && obMode === 'create' && (
+            <OBBuilder initialOps={obData?.ops || []} initialMeta={obData?.meta} 
+              divisions={data.divisions}
+              onCancel={()=>{setObMode(null);setObData(null);}} 
+              onSave={(saved)=>{
+                const newOb = {id:saved.styleNum, style:saved.styleNum, name:saved.styleName, customer:saved.customer, div:saved.div, season:saved.season, created:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}), ops:saved.ops.length, smv:saved.totalSMV};
+                setData({...data, obs:[newOb, ...data.obs]});
+                OB_OPERATIONS[saved.styleNum] = saved.ops;
+                setObMode(null);setObData(null);
+              }} toast={showToast}/>
+          )}
+          {view === 'ob' && obMode === 'edit' && (
+            <OBBuilder initialOps={obData?.ops || []} initialMeta={{styleNum:obData?.style||'',styleName:obData?.name||'',customer:obData?.customer||'',div:obData?.div||'SHT',buyer:'',season:obData?.season||''}}
+              divisions={data.divisions}
+              onCancel={()=>{setObMode(null);setObData(null);}}
+              onSave={(saved)=>{
+                OB_OPERATIONS[obData.id] = saved.ops;
+                setData({...data, obs:data.obs.map(o=>o.id===obData.id?{...o,name:saved.styleName,customer:saved.customer,ops:saved.ops.length,smv:saved.totalSMV}:o)});
+                setObMode(null);setObData(null);
+              }} toast={showToast}/>
+          )}
+          
+          {view === 'ld' && ldMode !== 'create' && (
+            <LineDesignList data={data} toast={showToast}
+              onCreate={()=>{setLdData({ob:null,obOps:OB_OPERATIONS['SHT-4821']});setLdMode('create');}}
+              onDeploy={(ld)=>{setDeployLD(ld);setView('deploy');}}
+            />
+          )}
+          {view === 'ld' && ldMode === 'create' && (
+            <LineDesignBuilder ob={ldData?.ob} obOps={ldData?.obOps} 
+              lines={data.lines} divisions={data.divisions}
+              onCancel={()=>{setLdMode(null);setLdData(null);}}
+              onSave={(ld)=>{
+                setData({...data, lineDesigns:[ld, ...data.lineDesigns]});
+                setLdMode(null);setLdData(null);
+              }} toast={showToast}/>
+          )}
+          
+          {view === 'dashboard' && (
+            <AssignmentDashboard data={data} toast={showToast}
+              onDeploy={(ld)=>{setDeployLD(ld);setView('deploy');}}
+              onActivate={(ld)=>{
+                setData({...data, lineDesigns: data.lineDesigns.map(l => l.id===ld.id ? {...l,status:'Active'} : l)});
+                showToast('Activated '+ld.id+' on '+ld.line,'success');
+              }}
+              trainingFlags={trainingFlags}
+              onShowTraining={()=>setShowTrainingPanel(true)}
+            />
+          )}
+          
+          {view === 'deploy' && deployLD && (
+            <DeploymentPlanning ld={deployLD} 
+              onBack={()=>{setView('dashboard');setDeployLD(null);}}
+              toast={showToast}
+              onFlagTraining={flagForTraining}
+            />
+          )}
+          {view === 'deploy' && !deployLD && <div className="note">No line design selected. Open the Assignment Dashboard and click Deploy on any line.</div>}
+          
+          {view === 'daily' && <DailyBalancing data={data} toast={showToast} onOpenCT={(op,operator)=>setCtModal({op,operator})}/>}
+          {view === 'ct-priority' && <CapturePriorityScreen toast={showToast} onOpenCT={(op,operator)=>setCtModal({op,operator})}/>}
+          {view === 'ct-history' && <SkillHistory toast={showToast}/>}
+        </div>
+      </div>
+      
+      {showOBCreate && <OBCreateModal onClose={()=>setShowOBCreate(false)} toast={showToast}
+        onSelect={(s)=>{
+          setObData({ops:s.ops, meta:s.mode==='copy'?{...data.obs[0]}:null});
+          setObMode('create');
+        }}
+      />}
+      
+      {showTrainingPanel && <TrainingRegister flags={trainingFlags} onClose={()=>setShowTrainingPanel(false)} toast={showToast}/>}
+      
+      {ctModal && <CTCaptureModal op={ctModal.op} operator={ctModal.operator}
+        onClose={()=>setCtModal(null)}
+        onSave={(obs)=>{
+          // Check if this resolves a training flag
+          setTrainingFlags(trainingFlags.map(f => 
+            f.empName === obs.operator && f.opName === obs.op && obs.skillPct >= f.requiredSkill 
+              ? {...f, status:'resolved'} : f
+          ));
+        }}
+        toast={showToast}
+      />}
+      
+      {toast && <Toast key={toast.key} message={toast.message} type={toast.type} onDone={()=>setToast(null)}/>}
+    </div>
+  );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>
