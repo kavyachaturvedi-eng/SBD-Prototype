@@ -243,8 +243,18 @@ tbody tr:hover td{background:#fafaf8}
 
 .devx-banner{background:#f3f0ff;border:1px solid #ddd6fe;border-radius:8px;padding:10px 14px;margin-bottom:13px;display:flex;align-items:center;gap:10px;cursor:pointer}
 
-/* NEW FEATURE BADGE — floating button bottom-right */
-.new-feature-floating{position:fixed;bottom:20px;right:20px;display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:24px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:#fff;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(217,119,6,.4);transition:all .15s;z-index:80;animation:pulse-attention 2s ease-in-out infinite}
+/* NEW FEATURE INLINE — compact banner at top of page */
+.new-feature-inline{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,#fffbeb 0%,#fef3c7 100%);border:1px solid #fde68a;border-radius:9px;padding:10px 14px;margin-bottom:14px;cursor:pointer;transition:all .12s}
+.new-feature-inline:hover{border-color:#f59e0b;background:linear-gradient(90deg,#fef3c7 0%,#fde68a 100%)}
+.new-feature-pill{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:#fff;letter-spacing:.5px;flex-shrink:0;box-shadow:0 1px 3px rgba(217,119,6,.3)}
+.new-feature-inline-text{flex:1;min-width:0}
+.new-feature-inline-title{font-size:12px;font-weight:600;color:#92400e;margin-bottom:2px}
+.new-feature-inline-sub{font-size:11px;color:#a16207;line-height:1.5}
+.new-feature-inline-btn{font-size:11px;font-weight:500;color:#92400e;background:transparent;border:1px solid #fcd34d;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:inherit;flex-shrink:0;white-space:nowrap}
+.new-feature-inline-btn:hover{background:#fff;border-color:#d97706;color:#78350f}
+
+/* NEW FEATURE BADGE — floating button bottom-right (secondary cue) */
+.new-feature-floating{position:fixed;bottom:20px;right:20px;display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:24px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:#fff;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(217,119,6,.4);transition:all .15s;z-index:80;animation:pulse-attention 2s ease-in-out infinite}
 .new-feature-floating:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(217,119,6,.5)}
 @keyframes pulse-attention{0%,100%{box-shadow:0 4px 14px rgba(217,119,6,.4)}50%{box-shadow:0 4px 14px rgba(217,119,6,.4),0 0 0 6px rgba(245,158,11,.15)}}
 
@@ -528,15 +538,22 @@ const NewFeatureModal = ({title, oneLiner, problem, impact, usage, onClose}) => 
   </Modal>
 );
 
-/* NewFeatureSection — renders a floating "New" button at bottom-right that opens an explainer modal */
+/* NewFeatureSection — renders an inline banner at top of page + floating button. Both open same modal */
 const NewFeatureSection = ({title, oneLiner, problem, impact, usage}) => {
   const [open, setOpen] = useState(false);
   return (
     <>
+      <div className="new-feature-inline" onClick={()=>setOpen(true)}>
+        <span className="new-feature-pill">★ NEW</span>
+        <div className="new-feature-inline-text">
+          <div className="new-feature-inline-title">{title}</div>
+          <div className="new-feature-inline-sub">{oneLiner}</div>
+        </div>
+        <button className="new-feature-inline-btn">Learn more →</button>
+      </div>
       <button className="new-feature-floating" onClick={()=>setOpen(true)} title="Learn about this new feature">
         <span style={{fontSize:14}}>★</span>
         <span style={{fontWeight:600,fontSize:11,letterSpacing:.3}}>NEW</span>
-        <span style={{fontSize:11,opacity:.95,maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{title}</span>
       </button>
       {open && <NewFeatureModal title={title} oneLiner={oneLiner} problem={problem} impact={impact} usage={usage} onClose={()=>setOpen(false)}/>}
     </>
@@ -1823,20 +1840,22 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
   const fmtTime = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
   const urgencyClass = countdown <= 120 ? {bg:'#fdecea',col:'#b71c1c',bd:'#ef9a9a'} : countdown <= 300 ? {bg:'#fff8e1',col:'#b45309',bd:'#ffe082'} : {bg:'#fff',col:'#1a1a1a',bd:'#e5e5e5'};
   
-  // Auto-fill logic — replace absent operators with present substitutes
+  // Auto-fill logic — KEEP absent operators visible (struck through) and add replacements alongside them
+  // This preserves the "before/after intelligence" visual for demos
   const runAutoFill = () => {
     const usedIds = new Set();
+    // Reserve all currently-assigned present operators
     deployment.forEach(o => o.assigned.forEach(a => { if (!a.absent) usedIds.add(a.id); }));
     
     const filled = deployment.map(op => {
-      const present = op.assigned.filter(a => !a.absent);
-      const absentCount = op.assigned.filter(a => a.absent).length;
+      const absentInOp = op.assigned.filter(a => a.absent);
+      const absentCount = absentInOp.length;
       
       if (absentCount === 0) return op;
       
-      // Find replacements for absent operators
+      // Find a replacement for each absent operator
       const replacements = [];
-      for (let i = 0; i < absentCount; i++) {
+      absentInOp.forEach(absentOp => {
         const candidate = OPERATORS
           .filter(e => !usedIds.has(e.id) && !e.absent && e.skills[op.name] != null)
           .sort((a,b)=>b.skills[op.name]-a.skills[op.name])[0]
@@ -1852,24 +1871,41 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
             skillPct: directSkill != null ? directSkill : Math.max(...Object.values(candidate.skills)) - 15,
             isAutoFill: true,
             isAdjacent: directSkill == null,
+            replacingId: absentOp.id,  // track which absent op this replaces
+            replacingName: absentOp.name,
           });
         }
-      }
+      });
       
-      // Keep present ones + add replacements (mark absent ones as filled-over)
-      return {...op, assigned: [...present, ...replacements]};
+      // KEY CHANGE: keep ALL original assignments (including absent ones marked clearly) 
+      // and append the auto-fill replacements right after each absent operator
+      const newAssigned = [];
+      op.assigned.forEach(a => {
+        newAssigned.push(a);  // keep absent operator visible
+        if (a.absent) {
+          const replacement = replacements.find(r => r.replacingId === a.id);
+          if (replacement) newAssigned.push(replacement);  // add replacement immediately after
+        }
+      });
+      
+      return {...op, assigned: newAssigned};
     });
     setDeployment(filled);
   };
   
-  // Approve all auto-fills
+  // Approve all auto-fills — only NOW do we remove the absent operators (they've been "covered")
   const approveAll = () => {
-    setDeployment(deployment.map(op => ({...op, assigned: op.assigned.map(a=>({...a,isAutoFill:false}))})));
+    setDeployment(deployment.map(op => ({
+      ...op,
+      assigned: op.assigned
+        .filter(a => !a.absent)  // remove absent operators now that replacements are confirmed
+        .map(a=>({...a,isAutoFill:false}))  // un-mark auto-fills as confirmed
+    })));
     setShowAutoFillBanner(false);
-    toast('All auto-fills approved','success');
+    toast('All auto-fills approved · '+deployment.flatMap(o=>o.assigned).filter(a=>a.isAutoFill).length+' gaps closed ✓','success');
   };
   
-  // Run auto-fill on mount if there are absences
+  // Run auto-fill on mount if there are absences (and we haven't filled yet)
   useEffect(()=>{
     const hasAbsent = deployment.some(op => op.assigned.some(a => a.absent));
     const noFillsYet = deployment.every(op => op.assigned.every(a=>!a.isAutoFill));
@@ -1934,11 +1970,16 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
         </div>
         <div style={{width:1,height:32,background:urgencyClass.bd}}/>
         <div>
-          <div className="urgency-label" style={{color:urgencyClass.col}}>Unresolved gaps</div>
-          <div style={{fontSize:18,fontWeight:600,color:urgencyClass.col}}>{autoFilledOps.length}</div>
+          <div className="urgency-label" style={{color:urgencyClass.col}}>Absences detected</div>
+          <div style={{fontSize:18,fontWeight:600,color:'#b71c1c'}}>{deployment.flatMap(o=>o.assigned).filter(a=>a.absent).length}</div>
+        </div>
+        <div style={{width:1,height:32,background:urgencyClass.bd}}/>
+        <div>
+          <div className="urgency-label" style={{color:urgencyClass.col}}>★ Auto-filled by system</div>
+          <div style={{fontSize:18,fontWeight:600,color:'#0f766e'}}>{deployment.flatMap(o=>o.assigned).filter(a=>a.isAutoFill).length}</div>
         </div>
         <div className="urgency-gaps" style={{color:urgencyClass.col}}>
-          {autoFilledOps.length === 0 && countdown > 0 ? '✓ All gaps filled' : countdown <= 120 ? '⚠ Shift starting' : ''}
+          {countdown <= 120 ? '⚠ Shift starting' : showAutoFillBanner && autoFilledOps.length > 0 ? '★ Ready for review' : autoFilledOps.length === 0 ? '✓ All gaps filled' : ''}
         </div>
       </div>
       
@@ -1947,47 +1988,58 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
           <div className="autofill-icon">★</div>
           <div className="autofill-body">
             <div className="autofill-title">
-              {autoFilledOps.reduce((s,o)=>s+o.assigned.filter(a=>a.isAutoFill).length,0)} absence{autoFilledOps.length>1?'s':''} detected — system auto-filled all gaps 
+              {deployment.flatMap(o=>o.assigned).filter(a=>a.isAutoFill).length} absence{deployment.flatMap(o=>o.assigned).filter(a=>a.absent).length>1?'s':''} detected — system auto-filled all gaps 
               <span className="new-pill-inline" style={{background:'#fff',color:'#92400e',marginLeft:6}}>★ New feature</span>
             </div>
             <div className="autofill-sub" style={{marginTop:8}}>
-              <div style={{marginBottom:8,fontSize:11,color:'#bcd0f0',fontStyle:'italic'}}>System ran the same skill ranking the supervisor would. Each replacement is the top-scored available operator — direct skill match first, adjacent second.</div>
+              <div style={{marginBottom:8,fontSize:11,color:'#bcd0f0',fontStyle:'italic'}}>System ran the same skill ranking the supervisor would. Each replacement is the top-scored available operator — direct skill match first, adjacent second. See the absent operators (struck through) and their replacements (★ marked) in the table below.</div>
               
-              {autoFilledOps.slice(0,3).map((op,i)=>{
-                const autoFill = op.assigned.find(a=>a.isAutoFill);
-                const absentOp = op.assigned.find(a=>a.absent);
-                if (!autoFill) return null;
-                // Find alternatives that were considered but not picked
-                const alternatives = OPERATORS
-                  .filter(e => e.id !== autoFill.id && !e.absent && e.skills[op.name] != null)
-                  .filter(e => !deployment.flatMap(o=>o.assigned).some(a=>a.id===e.id))
-                  .sort((a,b)=>b.skills[op.name]-a.skills[op.name])
-                  .slice(0,2);
+              {(() => {
+                // Build a flat list of (op, absentOperator, autoFillOperator) pairs
+                const pairs = [];
+                deployment.forEach(op => {
+                  op.assigned.filter(a => a.isAutoFill).forEach(autoFill => {
+                    const absentOp = op.assigned.find(a => a.absent && a.id === autoFill.replacingId);
+                    if (absentOp) pairs.push({op, absentOp, autoFill});
+                  });
+                });
+                
                 return (
-                  <div key={i} style={{background:'rgba(255,255,255,.08)',borderRadius:6,padding:'8px 10px',marginBottom:6}}>
-                    <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,marginBottom:4,flexWrap:'wrap'}}>
-                      <strong style={{color:'#fff'}}>{op.name}</strong>
-                      <span style={{color:'#fde68a'}}>·</span>
-                      <span style={{color:'#fca5a5',textDecoration:'line-through'}}>
-                        {absentOp ? `${absentOp.name} (${absentOp.skillPct}%) absent` : 'gap'}
-                      </span>
-                      <span style={{color:'#bcd0f0'}}>→</span>
-                      <span style={{background:'#10b981',color:'#fff',padding:'1px 7px',borderRadius:10,fontSize:11,fontWeight:600}}>
-                        ★ {autoFill.name} ({autoFill.skillPct}%)
-                      </span>
-                    </div>
-                    <div style={{fontSize:10.5,color:'#bcd0f0',paddingLeft:0,lineHeight:1.5}}>
-                      <strong style={{color:'#fde68a'}}>Why this pick:</strong> {autoFill.isAdjacent 
-                        ? `Adjacent skill match — no direct match available, ${autoFill.name} has experience on related operations.`
-                        : `Direct skill match on ${op.name}, highest available Skill % (${autoFill.skillPct}%).`}
-                      {alternatives.length > 0 && (
-                        <span> Alternatives considered but lower-ranked: {alternatives.map(a=>`${a.name} (${a.skills[op.name]}%)`).join(', ')}.</span>
-                      )}
-                    </div>
-                  </div>
+                  <>
+                    {pairs.slice(0,3).map((p,i)=>{
+                      const alternatives = OPERATORS
+                        .filter(e => e.id !== p.autoFill.id && !e.absent && e.skills[p.op.name] != null)
+                        .filter(e => !deployment.flatMap(o=>o.assigned).some(a=>a.id===e.id))
+                        .sort((a,b)=>b.skills[p.op.name]-a.skills[p.op.name])
+                        .slice(0,2);
+                      return (
+                        <div key={i} style={{background:'rgba(255,255,255,.08)',borderRadius:6,padding:'8px 10px',marginBottom:6}}>
+                          <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,marginBottom:4,flexWrap:'wrap'}}>
+                            <strong style={{color:'#fff'}}>{p.op.name}</strong>
+                            <span style={{color:'#fde68a'}}>·</span>
+                            <span style={{color:'#fca5a5',textDecoration:'line-through'}}>
+                              {p.absentOp.name} ({p.absentOp.skillPct}%) absent
+                            </span>
+                            <span style={{color:'#bcd0f0'}}>→</span>
+                            <span style={{background:'#10b981',color:'#fff',padding:'1px 7px',borderRadius:10,fontSize:11,fontWeight:600}}>
+                              ★ {p.autoFill.name} ({p.autoFill.skillPct}%)
+                            </span>
+                          </div>
+                          <div style={{fontSize:10.5,color:'#bcd0f0',paddingLeft:0,lineHeight:1.5}}>
+                            <strong style={{color:'#fde68a'}}>Why this pick:</strong> {p.autoFill.isAdjacent 
+                              ? `Adjacent skill match — no direct match available, ${p.autoFill.name} has experience on related operations.`
+                              : `Direct skill match on ${p.op.name}, highest available Skill % (${p.autoFill.skillPct}%).`}
+                            {alternatives.length > 0 && (
+                              <span> Alternatives considered but lower-ranked: {alternatives.map(a=>`${a.name} (${a.skills[p.op.name]}%)`).join(', ')}.</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {pairs.length > 3 && <div style={{fontSize:11,color:'#bcd0f0',marginTop:6}}>+ {pairs.length - 3} more auto-fills with same reasoning</div>}
+                  </>
                 );
-              })}
-              {autoFilledOps.length > 3 && <div style={{fontSize:11,color:'#bcd0f0',marginTop:6}}>+ {autoFilledOps.length - 3} more auto-fills with same reasoning</div>}
+              })()}
             </div>
           </div>
           <div className="autofill-actions">
@@ -2041,11 +2093,14 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
                 ) : op.assigned.map((a, j) => {
                   const isFirstRow = j === 0;
                   const isLastRow = j === op.assigned.length - 1;
+                  const rowBg = i===selectedOpIdx ? '#f0f4ff' : 
+                                a.absent ? '#fef2f2' : 
+                                a.isAutoFill ? '#fffbeb' : '';
                   return (
                     <tr key={i+'-'+j} 
                         style={{
                           cursor:'pointer',
-                          background: i===selectedOpIdx ? '#f0f4ff' : '',
+                          background: rowBg,
                           borderBottom: isLastRow ? '1px solid #e5e5e5' : '1px solid #f5f5f3'
                         }}
                         onClick={()=>setSelectedOpIdx(i)}>
@@ -2053,13 +2108,18 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
                       <td style={{borderBottom:'none'}}>{isFirstRow ? <strong>{op.name}</strong> : ''}</td>
                       <td style={{borderBottom:'none'}}>{isFirstRow ? <span className={op.type==='Machine'?'tag-m':'tag-nm'}>{op.type}</span> : ''}</td>
                       <td style={{borderBottom:'none'}}>{isFirstRow ? op.smv.toFixed(2) : ''}</td>
-                      <td style={{borderBottom:'none'}}>{isFirstRow ? <strong>{op.assigned.length}</strong> : ''}</td>
+                      <td style={{borderBottom:'none'}}>{isFirstRow ? <strong>{op.assigned.filter(x=>!x.absent).length}</strong> : ''}</td>
                       <td style={{borderBottom:'none'}}>
                         <div style={{display:'flex',alignItems:'center',gap:8}}>
                           <Avatar name={a.name} color={a.color}/>
                           <div>
                             <div style={{fontSize:13,fontWeight:500,textDecoration:a.absent?'line-through':'none',color:a.absent?'#b71c1c':'#1a1a1a'}}>{a.name}</div>
-                            <div style={{fontSize:10,color:'#888'}}>{a.id}{a.isAdjacent && ' · adjacent'}</div>
+                            <div style={{fontSize:10,color:'#888'}}>
+                              {a.id}
+                              {a.isAdjacent && ' · adjacent'}
+                              {a.isAutoFill && a.replacingName && <span style={{color:'#d97706',fontWeight:600}}> · ★ replacing {a.replacingName}</span>}
+                              {a.absent && <span style={{color:'#b71c1c',fontWeight:600}}> · awaiting replacement</span>}
+                            </div>
                           </div>
                         </div>
                       </td>
