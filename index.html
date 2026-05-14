@@ -32,10 +32,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .topbar-right{display:flex;gap:8px;align-items:center}
 .role-switcher{display:flex;align-items:center;gap:4px;background:#f5f5f3;border:1px solid #e5e5e5;border-radius:9px;padding:3px}
 .role-switcher-label{font-size:10px;color:#888;font-weight:500;padding:0 8px 0 6px;text-transform:uppercase;letter-spacing:.5px}
-.role-pill{display:flex;flex-direction:column;align-items:flex-start;padding:5px 11px;border-radius:6px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;color:#555;transition:all .12s;min-width:64px}
+.role-pill{display:inline-flex;align-items:center;padding:7px 14px;border-radius:6px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;color:#555;transition:all .12s}
 .role-pill:hover{background:#fff;color:#1a1a1a}
 .role-pill.active{background:#1a56b0;color:#fff;box-shadow:0 1px 3px rgba(26,86,176,.3)}
-.role-pill-phase{font-size:9px;font-weight:400;opacity:.7;margin-top:1px;text-transform:uppercase;letter-spacing:.3px}
 .content{padding:18px 20px;flex:1;overflow-y:auto;overflow-x:hidden}
 
 /* BADGES */
@@ -244,6 +243,25 @@ tbody tr:hover td{background:#fafaf8}
 
 .devx-banner{background:#f3f0ff;border:1px solid #ddd6fe;border-radius:8px;padding:10px 14px;margin-bottom:13px;display:flex;align-items:center;gap:10px;cursor:pointer}
 
+/* DEVX EXPLAINER CALLOUT — used on every differentiator */
+.devx-callout{background:linear-gradient(135deg,#f3f0ff 0%,#ede4fe 100%);border:1px solid #c4a8f0;border-radius:10px;padding:14px 16px;margin-bottom:14px;position:relative;overflow:hidden}
+.devx-callout::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#7c3aed 0%,#5b21b6 100%)}
+.devx-callout-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.devx-callout-title{font-size:13px;font-weight:600;color:#4c1d95;display:flex;align-items:center;gap:6px}
+.devx-callout-pill{font-size:9px;font-weight:600;background:#7c3aed;color:#fff;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px}
+.devx-callout-body{font-size:12px;color:#4c1d95;line-height:1.6;padding-left:2px}
+.devx-callout-body strong{color:#3b0764}
+.devx-callout-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;font-size:11px}
+.devx-callout-grid .label{font-weight:600;color:#5b21b6;text-transform:uppercase;letter-spacing:.4px;font-size:9px;margin-bottom:3px}
+.devx-callout-grid .value{color:#3b0764;line-height:1.5}
+
+/* DevX inline ribbon — small label that appears on the page heading */
+.devx-ribbon{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:3px 9px;border-radius:12px;background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%);color:#fff;letter-spacing:.4px;text-transform:uppercase;margin-left:10px;vertical-align:middle}
+
+/* Help icon — circles with i appear next to differentiator UI elements */
+.devx-help{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#7c3aed;color:#fff;font-size:10px;font-weight:700;font-style:italic;cursor:help;margin-left:5px;vertical-align:middle;font-family:Georgia,serif}
+.devx-help:hover{background:#5b21b6}
+
 .dev-opt{border:1.5px solid #e5e5e5;border-radius:8px;padding:10px 12px;cursor:pointer;font-size:12px;color:#555;text-align:center;font-family:inherit;background:#fff;width:100%}
 .dev-opt:hover{border-color:#1a56b0;background:#f0f4ff;color:#1a56b0}
 .dev-opt.selected{border-color:#1a56b0;background:#e8f0fe;color:#1a56b0;font-weight:500}
@@ -401,11 +419,11 @@ const OPERATORS = [
   {id:'EMP-1103',name:'Priya S.',color:'#2e7d32',skills:{'Front placket attach':92,'Collar attach':84},absent:false},
   {id:'EMP-1087',name:'Ravi K.',color:'#1a56b0',skills:{'Collar attach':68,'Front placket attach':72},absent:true},
   {id:'EMP-2601',name:'Deepa M.',color:'#5b21b6',skills:{'Collar attach':84},absent:false},
-  {id:'EMP-2602',name:'Nanda K.',color:'#c62828',skills:{'Collar attach':78},absent:false},
+  {id:'EMP-2602',name:'Nanda K.',color:'#c62828',skills:{'Collar attach':78},absent:true},
   {id:'EMP-2310',name:'Geetha S.',color:'#0f6e56',skills:{'Sleeve attach':95},absent:false},
   {id:'EMP-2311',name:'Anitha R.',color:'#b45309',skills:{'Sleeve attach':88},absent:false},
   {id:'EMP-2312',name:'Ramesh P.',color:'#1a56b0',skills:{'Sleeve attach':82,'Cuff attach':75},absent:false},
-  {id:'EMP-2313',name:'Usha V.',color:'#555',skills:{'Sleeve attach':76},absent:false},
+  {id:'EMP-2313',name:'Usha V.',color:'#555',skills:{'Sleeve attach':76},absent:true},
   {id:'EMP-2401',name:'Helper-01',color:'#888',skills:{'Thread trimming':100},absent:false},
   {id:'EMP-1210',name:'Suresh M.',color:'#c62828',skills:{'Button attach':108},absent:true},
   {id:'EMP-1211',name:'Babu T.',color:'#0f6e56',skills:{'Button attach':99,'Buttonhole':92},absent:false},
@@ -414,6 +432,14 @@ const OPERATORS = [
   {id:'EMP-2703',name:'Saravanan P.',color:'#5b21b6',skills:{'Collar attach':96,'Cuff attach':80},absent:false},
   {id:'EMP-2704',name:'Preethi S.',color:'#b45309',skills:{'Sleeve attach':79},absent:false},
   {id:'EMP-2705',name:'Rajesh K.',color:'#c62828',skills:{'Button attach':91,'Buttonhole':85},absent:false},
+  {id:'EMP-2706',name:'Karthik N.',color:'#0f5f5f',skills:{'Front placket attach':88,'Cuff attach':82},absent:false},
+  {id:'EMP-2707',name:'Vidya M.',color:'#7c3aed',skills:{'Sleeve attach':86,'Side seam':91},absent:false},
+  {id:'EMP-2708',name:'Mohan R.',color:'#0f6e56',skills:{'Side seam':95,'Cuff attach':89},absent:false},
+  {id:'EMP-2709',name:'Sunita P.',color:'#b45309',skills:{'Side seam':87},absent:false},
+  {id:'EMP-2710',name:'Helper-02',color:'#666',skills:{'Thread trimming':95},absent:false},
+  {id:'EMP-2711',name:'Helper-03',color:'#888',skills:{'Thread trimming':92},absent:true},
+  {id:'EMP-2712',name:'Devi K.',color:'#1a56b0',skills:{'Buttonhole':98},absent:false},
+  {id:'EMP-2713',name:'Manju S.',color:'#5b21b6',skills:{'Buttonhole':94},absent:false},
 ];
 
 const ROLES = {
@@ -464,6 +490,24 @@ const StatusBadge = ({status}) => (
   <span className={`badge ${status === 'Active' ? 'bs' : 'bg'}`}>{status}</span>
 );
 
+/* DevxCallout — explains a differentiator inline on the UI */
+const DevxCallout = ({title, oneLiner, problem, impact, usage}) => (
+  <div className="devx-callout">
+    <div className="devx-callout-header">
+      <span className="devx-callout-pill">✦ DevX Differentiator</span>
+      <span className="devx-callout-title">{title}</span>
+    </div>
+    <div className="devx-callout-body">{oneLiner}</div>
+    <div className="devx-callout-grid">
+      {problem && <div><div className="label">Problem it solves</div><div className="value">{problem}</div></div>}
+      {impact && <div><div className="label">Measurable impact</div><div className="value">{impact}</div></div>}
+      {usage && <div style={{gridColumn:'1/-1'}}><div className="label">Used</div><div className="value">{usage}</div></div>}
+    </div>
+  </div>
+);
+
+const DevxRibbon = ({label='DevX feature'}) => <span className="devx-ribbon">✦ {label}</span>;
+
 /* ════════════════════════════════════════════════════════════════
    SIDEBAR
 ════════════════════════════════════════════════════════════════ */
@@ -475,23 +519,23 @@ const Sidebar = ({current, onNav, role}) => {
     {key:'line',label:'Line'},
     {key:'machine',label:'Machine'},
     {key:'operation',label:'Operation'},
-    {key:'skill',label:'Employee skill ✦',isDevx:true},
+    {key:'skill',label:'Employee skill'},
     {key:'integration',label:'Integration health'},
   ];
   const ieItems = [
-    {key:'ob',label:'Operation bulletins',sec:'Phase 2 — OBs'},
-    {key:'ld',label:'Line design',sec:'Phase 3 — Line Design'},
-    {key:'dashboard',label:'Assignment dashboard',sec:'Phase 4 — Deployment ✦'},
+    {key:'ob',label:'Operation bulletins',sec:'Operation Bulletins'},
+    {key:'ld',label:'Line design',sec:'Line Design'},
+    {key:'dashboard',label:'Assignment dashboard ✦',sec:'Deployment'},
     {key:'deploy',label:'Deployment planning'},
-    {key:'ct-history',label:'Skill history',sec:'Phase 6 — Cycle Time ✦'},
+    {key:'ct-history',label:'Skill history ✦',sec:'Cycle Time'},
   ];
   const supItems = [
-    {key:'daily',label:'Daily balancing',sec:'Phase 5 — Daily ✦'},
-    {key:'ct-priority',label:'Capture priority',sec:'Phase 6 — Cycle Time ✦'},
+    {key:'daily',label:'Daily balancing ✦',sec:'Daily Balancing'},
+    {key:'ct-priority',label:'Capture priority ✦',sec:'Cycle Time'},
     {key:'ct-history',label:'Skill history (read)'},
   ];
   
-  const items = role === 'Admin' ? [{sec:'Phase 1 — Masters'},...adminItems] :
+  const items = role === 'Admin' ? [{sec:'Masters'},...adminItems] :
                 role === 'IE' ? ieItems :
                 supItems;
 
@@ -535,15 +579,15 @@ const MastersHome = ({data, onNav}) => {
     {key:'line',name:'Line master',desc:'SAP Line numbers — shift config at line level',count:data.lines.filter(d=>d.status==='Active').length+' active',cls:'bs'},
     {key:'machine',name:'Machine master',desc:'Machine types per factory — type only',count:data.machines.length+' types',cls:'bs'},
     {key:'operation',name:'Operation master',desc:'Operations, SMV, adjacent operations',count:data.operations.length+' active',cls:'bs'},
-    {key:'skill',name:'Employee skill master ✦',desc:'Skill % per operator per operation — cycle-time driven',count:OPERATORS.length+' operators',cls:'bi'},
+    {key:'skill',name:'Employee skill master',desc:'Skill % per operator per operation — cycle-time driven',count:OPERATORS.length+' operators',cls:'bi'},
   ];
   return (
     <>
       <div style={{background:'linear-gradient(135deg, #1a56b0 0%, #0f2d5c 100%)',color:'#fff',borderRadius:10,padding:'14px 18px',marginBottom:16,display:'flex',alignItems:'center',gap:14,flexWrap:'wrap'}}>
         <div style={{fontSize:24}}>👋</div>
         <div style={{flex:1,minWidth:240}}>
-          <div style={{fontSize:14,fontWeight:600,marginBottom:3}}>Welcome — you're viewing as Admin (Phase 1)</div>
-          <div style={{fontSize:12,opacity:.92,lineHeight:1.5}}>To explore Phases 2–6, use the <strong>View as</strong> switcher in the top-right corner. Switch to <strong>IE</strong> to see OBs, Line Design, Deployment Planning. Switch to <strong>Supervisor</strong> for Daily Balancing and Cycle Time capture.</div>
+          <div style={{fontSize:14,fontWeight:600,marginBottom:3}}>Welcome — you're viewing as Admin</div>
+          <div style={{fontSize:12,opacity:.92,lineHeight:1.5}}>To explore the full workflow, use the <strong>View as</strong> switcher in the top-right corner. Switch to <strong>IE</strong> to see Operation Bulletins, Line Design, and Deployment Planning. Switch to <strong>Supervisor</strong> for Daily Balancing and Cycle Time capture.</div>
         </div>
       </div>
       <div className="metric-grid">
@@ -737,7 +781,7 @@ const OperationMaster = ({data,setData,toast}) => (
       <td key="a" style={{fontSize:11,color:'#888'}}>{d.adj}</td>,
       <td key="sm">{d.smv.toFixed(4)}</td>,<td key="s"><StatusBadge status={d.status}/></td>
     ]}
-    note="SMV lives on the operation — no separate SMV Master. Adjacent operations power Phase 4/5 fallback matching."
+    note="SMV lives on the operation — no separate SMV Master. Adjacent operations power fallback matching in deployment planning and daily balancing."
     toast={toast}/>
 );
 
@@ -768,13 +812,13 @@ const EmployeeSkillMaster = ({toast}) => {
   
   return (
     <>
-      <div className="devx-banner" onClick={()=>setShowHeatmap(true)}>
-        <span style={{fontSize:16}}>✦</span>
+      <div style={{background:'#f0f4ff',border:'1px solid #c7d7f5',borderRadius:8,padding:'10px 14px',marginBottom:13,display:'flex',alignItems:'center',gap:10,cursor:'pointer'}} onClick={()=>setShowHeatmap(true)}>
+        <span style={{fontSize:16}}>🔥</span>
         <div style={{flex:1}}>
-          <div style={{fontSize:12,fontWeight:600,color:'#5b21b6'}}>Skill coverage map <span className="devx-badge">AI</span></div>
-          <div style={{fontSize:11,color:'#7c3aed'}}>See which operations are critically understaffed across all lines — before it becomes a deployment crisis</div>
+          <div style={{fontSize:12,fontWeight:600,color:'#1a3a6b'}}>Skill coverage heat map</div>
+          <div style={{fontSize:11,color:'#4a6fa5'}}>See which operations are critically understaffed across all lines</div>
         </div>
-        <button className="btn btn-sm" style={{borderColor:'#c4a8f0',color:'#5b21b6',background:'#f3f0ff'}}>View heatmap →</button>
+        <button className="btn btn-sm">View heatmap →</button>
       </div>
       <div className="filter-row">
         <select value={opFilter} onChange={e=>setOpFilter(e.target.value)}><option value="">All operations</option>{allOps.map(o=><option key={o}>{o}</option>)}</select>
@@ -827,10 +871,10 @@ const SkillHeatmap = ({onClose,toast}) => {
   const cellCls = (n) => n <= 1 ? 'hm-0' : n === 2 ? 'hm-lo' : n <= 5 ? 'hm-ok' : 'hm-hi';
   
   return (
-    <Modal size="lg" title="Skill coverage map ✦ AI" sub="Operations × lines — trained operator count per cell" onClose={onClose}
+    <Modal size="lg" title="Skill coverage heat map" sub="Operations × lines — trained operator count per cell" onClose={onClose}
       footer={<><button className="btn btn-primary" onClick={()=>{onClose();toast('Redirected to Operation Master — review Collar attach adjacent operations','warn');}}>Go to Operation Master</button><button className="btn" onClick={onClose}>Close</button></>}>
       <div style={{background:'#fdecea',border:'1px solid #ef9a9a',borderRadius:8,padding:'10px 14px',marginBottom:12,fontSize:12,color:'#b71c1c'}}>
-        <strong>⚠ 1 critical gap detected:</strong> Collar attach has only 1 trained operator on L-101. Any absence creates a zero-match gap in Phase 5.
+        <strong>⚠ 1 critical gap detected:</strong> Collar attach has only 1 trained operator on L-101. Any absence creates a zero-match gap in daily balancing.
       </div>
       <div className="scroll-x">
         <table style={{fontSize:12}}>
@@ -931,6 +975,13 @@ const OBList = ({data,setData,obOps,setObOps,toast,onCreate,onEdit,onCreateLD}) 
   
   return (
     <>
+      <DevxCallout
+        title="OB Templates"
+        oneLiner="Click + Create OB to see three options — Fresh, Copy, or Start from Template. Templates always load with current SMVs from the Operation Master. No stale data drift."
+        problem="IEs today copy old OBs and inherit outdated SMVs silently. By the 5th copy generation, nobody knows which numbers are canonical. Efficiency plans drift accordingly."
+        impact="Eliminates the stale-copy chain. Every OB built from a template starts from verified, current data — single source of truth per garment family."
+        usage="Every time an IE creates a new OB — typically 2–4 times per week per IE across active divisions."
+      />
       <div className="section-header">
         <div className="filter-row" style={{margin:0}}>
           <input type="text" placeholder="Search style..." value={search} onChange={e=>setSearch(e.target.value)} style={{width:200}}/>
@@ -1067,6 +1118,13 @@ const OBBuilder = ({initialOps,initialMeta,onCancel,onSave,toast,divisions}) => 
   
   return (
     <>
+      <DevxCallout
+        title="SMV Health Check"
+        oneLiner="When you click Save, the system compares each operation's planned SMV against real floor observations from the past 90 days. Mismatches are flagged before the line plan is built on bad numbers."
+        problem="Today, bad SMVs are discovered 2 weeks into production — after efficiency targets have already been missed. There is no mechanism to challenge stale time studies at the planning stage."
+        impact="Catches planning errors at the moment of creation. Click Save with the example data to see the alert fire (Collar attach is currently flagged based on floor median CT)."
+        usage="Triggered automatically on every OB save. Requires 90 days of Phase 6 data to be meaningful — gets more accurate the longer the system runs."
+      />
       <div className="ob-banner">
         <button className="btn btn-sm" onClick={onCancel}>← Back</button>
         <div className="ob-banner-item"><span>Style #</span><strong>{meta.styleNum || '—'}</strong></div>
@@ -1275,6 +1333,13 @@ const LineDesignBuilder = ({ob,obOps,onCancel,onSave,toast,lines,divisions}) => 
   
   return (
     <>
+      <DevxCallout
+        title="Bottleneck Relief Suggestion"
+        oneLiner="After you select a scenario, the system identifies the single best operator reallocation and shows the efficiency gain — in 5 seconds. Look for the green card below the scenario detail."
+        problem="IEs identify bottlenecks but then spend 20+ minutes in Excel calculating which reallocation gives the biggest efficiency lift. The math is solvable — but no one has time."
+        impact="Identifies the optimal reallocation in under 5 seconds. The same answer IEs derive manually, surfaced automatically — saving 1–2 hours of planning per style run."
+        usage="Once per Line Design, after scenario selection. Apply or dismiss — IE stays in control."
+      />
       <div className="ob-banner">
         <button className="btn btn-sm" onClick={onCancel}>← Back</button>
         <div className="ob-banner-item"><span>OB</span><strong>{ob?.id || 'New OB'}</strong></div>
@@ -1406,6 +1471,13 @@ const AssignmentDashboard = ({data,toast,onDeploy,onActivate,trainingFlags,onSho
   
   return (
     <>
+      <DevxCallout
+        title="Training Flag → Training Register"
+        oneLiner="Every skill gap row in Deployment Planning has a one-click ✦ Flag button. Flagged operators land in this Training Register — auto-closes when their cycle time improves."
+        problem="Today, training needs are spotted in planning but communicated verbally or via WhatsApp. The same gaps reappear on the next style because no one tracked them. Identification ≠ resolution."
+        impact="Converts a passive red flag into a managed workflow. Training Register tab (top-right ✦) shows all open flags ranked by operational frequency. Closure is automatic when CT improves."
+        usage="Used every time a skill gap is identified — typically 3–8 per style run per line. Reviewed monthly by the IE team."
+      />
       <div className="section-header">
         <div className="filter-row" style={{margin:0}}>
           <select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
@@ -1615,7 +1687,7 @@ const DeploymentPlanning = ({ld,onBack,toast,onFlagTraining}) => {
       <div className="save-bar">
         <div className="save-bar-label">
           <strong>Save & activate</strong>
-          When activated, this plan pushes to the supervisor's Phase 5 tablet interface
+          When activated, this plan pushes to the supervisor's tablet interface
         </div>
         <button className="btn" onClick={onBack}>Save draft</button>
         <button className="btn btn-success" onClick={()=>{toast('Plan activated — supervisor notified','success');onBack();}}>Activate plan →</button>
@@ -1641,11 +1713,11 @@ const TrainingRegister = ({flags,onClose,toast}) => (
           <div className="tr-item-op">{f.opName} · Current {f.currentSkill}% / Required {f.requiredSkill}%</div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
             <span style={{fontSize:10,color:'#888'}}>Flagged {f.flaggedAt}</span>
-            <button className="btn btn-xs" onClick={()=>toast('Auto-closes when CT improves in Phase 6','info')}>Details</button>
+            <button className="btn btn-xs" onClick={()=>toast('Auto-closes when CT observations improve','info')}>Details</button>
           </div>
         </div>
       ))}
-      <div style={{fontSize:11,color:'#888',marginTop:12,padding:'8px 4px',lineHeight:1.5}}>Flags automatically close when Phase 6 CT capture confirms the operator has crossed the required Skill % threshold.</div>
+      <div style={{fontSize:11,color:'#888',marginTop:12,padding:'8px 4px',lineHeight:1.5}}>Flags automatically close when a cycle time observation confirms the operator has crossed the required Skill % threshold.</div>
     </div>
   </div>
 );
@@ -1658,18 +1730,36 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
   const activeLD = data.lineDesigns.find(l=>l.status==='Active') || data.lineDesigns[0];
   const ops = OB_OPERATIONS[activeLD.obId] || OB_OPERATIONS['SHT-4821'];
   
-  // Initial deployment with some absences
+  // Initial deployment — multiple operators per operation (matching Phase 4 LD allocation)
+  // 28 total operators across 8 operations, some absent triggering auto-fill
   const initialDeployment = useMemo(()=>{
     const used = new Set();
+    // Define MP per operation based on SMV proportional to total — same as Phase 4
+    const totalSMV = ops.reduce((s,o)=>s+o.smv,0);
+    const totalMP = 28;
+    
     return ops.map(op => {
-      const candidates = OPERATORS.filter(emp => !used.has(emp.id) && emp.skills[op.name] != null).sort((a,b)=>(b.skills[op.name]||0)-(a.skills[op.name]||0));
-      const op2 = {...op, assigned: []};
-      if (candidates.length > 0) {
-        const primary = candidates[0];
-        used.add(primary.id);
-        op2.assigned.push({...primary, skillPct: primary.skills[op.name], isAutoFill:false});
-      }
-      return op2;
+      const mpForOp = Math.max(1, Math.round((op.smv/totalSMV)*totalMP));
+      
+      // Find candidates (direct skill match), pick top N up to mpForOp
+      const direct = OPERATORS
+        .filter(emp => !used.has(emp.id) && emp.skills[op.name] != null)
+        .sort((a,b)=>(b.skills[op.name]||0)-(a.skills[op.name]||0));
+      
+      const adjacent = OPERATORS
+        .filter(emp => !used.has(emp.id) && emp.skills[op.name] == null && Object.keys(emp.skills).length > 0)
+        .slice(0, Math.max(0, mpForOp - direct.length));
+      
+      const all = [...direct, ...adjacent].slice(0, mpForOp);
+      
+      const assigned = all.map(emp => {
+        used.add(emp.id);
+        const directSkill = emp.skills[op.name];
+        const skillPct = directSkill != null ? directSkill : Math.max(...Object.values(emp.skills)) - 15;
+        return {...emp, skillPct, isAutoFill:false, isAdjacent: directSkill == null};
+      });
+      
+      return {...op, assigned, mpRequired: mpForOp};
     });
   },[activeLD]);
   
@@ -1693,21 +1783,41 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
   const fmtTime = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
   const urgencyClass = countdown <= 120 ? {bg:'#fdecea',col:'#b71c1c',bd:'#ef9a9a'} : countdown <= 300 ? {bg:'#fff8e1',col:'#b45309',bd:'#ffe082'} : {bg:'#fff',col:'#1a1a1a',bd:'#e5e5e5'};
   
-  // Auto-fill logic
+  // Auto-fill logic — replace absent operators with present substitutes
   const runAutoFill = () => {
-    const usedIds = new Set(deployment.flatMap(o=>o.assigned.filter(a=>!a.absent).map(a=>a.id)));
+    const usedIds = new Set();
+    deployment.forEach(o => o.assigned.forEach(a => { if (!a.absent) usedIds.add(a.id); }));
+    
     const filled = deployment.map(op => {
-      const hasAbsent = op.assigned.some(a => a.absent);
-      const hasPresentOnly = op.assigned.length > 0 && !hasAbsent;
-      if (hasPresentOnly) return op;
-      // Find replacement
-      const candidates = OPERATORS.filter(e => !usedIds.has(e.id) && !e.absent && e.skills[op.name] != null).sort((a,b)=>b.skills[op.name]-a.skills[op.name]);
-      if (candidates.length) {
-        const r = candidates[0];
-        usedIds.add(r.id);
-        return {...op, assigned: [...op.assigned, {...r, skillPct:r.skills[op.name], isAutoFill:true}]};
+      const present = op.assigned.filter(a => !a.absent);
+      const absentCount = op.assigned.filter(a => a.absent).length;
+      
+      if (absentCount === 0) return op;
+      
+      // Find replacements for absent operators
+      const replacements = [];
+      for (let i = 0; i < absentCount; i++) {
+        const candidate = OPERATORS
+          .filter(e => !usedIds.has(e.id) && !e.absent && e.skills[op.name] != null)
+          .sort((a,b)=>b.skills[op.name]-a.skills[op.name])[0]
+          || OPERATORS
+              .filter(e => !usedIds.has(e.id) && !e.absent && Object.keys(e.skills).length > 0)
+              .sort((a,b)=>Math.max(...Object.values(b.skills))-Math.max(...Object.values(a.skills)))[0];
+        
+        if (candidate) {
+          usedIds.add(candidate.id);
+          const directSkill = candidate.skills[op.name];
+          replacements.push({
+            ...candidate,
+            skillPct: directSkill != null ? directSkill : Math.max(...Object.values(candidate.skills)) - 15,
+            isAutoFill: true,
+            isAdjacent: directSkill == null,
+          });
+        }
       }
-      return op;
+      
+      // Keep present ones + add replacements (mark absent ones as filled-over)
+      return {...op, assigned: [...present, ...replacements]};
     });
     setDeployment(filled);
   };
@@ -1721,7 +1831,9 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
   
   // Run auto-fill on mount if there are absences
   useEffect(()=>{
-    if (absentOnLine.length > 0 && deployment.every(op => op.assigned.every(a=>!a.isAutoFill))) {
+    const hasAbsent = deployment.some(op => op.assigned.some(a => a.absent));
+    const noFillsYet = deployment.every(op => op.assigned.every(a=>!a.isAutoFill));
+    if (hasAbsent && noFillsYet) {
       runAutoFill();
     }
   },[]);
@@ -1760,6 +1872,13 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
   
   return (
     <>
+      <DevxCallout
+        title="Auto-Fill All Gaps"
+        oneLiner="The system has already pre-assigned the best operator to every absent position. You review and approve in 60 seconds — not fill one by one for 15 minutes."
+        problem="Every morning, supervisors spend 15–20 minutes manually deciding who covers each absent position. Every competing system gives you a better ranked list — you still have to pick."
+        impact="Reduces daily deployment resolution from 15–20 min to under 2 min. The system uses the same skill-ranking logic as the manpower panel — direct skill matches first, then adjacent — but applies it automatically the moment HRMS attendance syncs."
+        usage="Every single shift start, every day, for every active line. The highest-frequency feature in the entire system."
+      />
       <div className="ob-banner">
         <div className="ob-banner-item"><span>Line</span><strong>{activeLD.line}</strong></div>
         <div className="ob-banner-item"><span>Style</span><strong>{activeLD.style}</strong></div>
@@ -1787,16 +1906,20 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
         <div className="autofill-banner">
           <div className="autofill-icon">✦</div>
           <div className="autofill-body">
-            <div className="autofill-title">{autoFilledOps.length} absence{autoFilledOps.length>1?'s':''} detected — auto-filled <span className="devx-badge" style={{background:'#fff',color:'#1a3a6b'}}>Intelligence</span></div>
+            <div className="autofill-title">
+              {autoFilledOps.reduce((s,o)=>s+o.assigned.filter(a=>a.isAutoFill).length,0)} absence{autoFilledOps.length>1?'s':''} detected — system auto-filled all gaps 
+              <span className="devx-badge" style={{background:'#fff',color:'#1a3a6b',marginLeft:6}}>✦ DevX Intelligence</span>
+            </div>
             <div className="autofill-sub">
-              {autoFilledOps.slice(0,2).map((op,i)=>(
-                <div key={i}>• {op.assigned.filter(a=>a.isAutoFill).map(a=>a.name+' ('+a.skillPct+'%)').join(', ')} → {op.name}</div>
+              <div style={{marginBottom:4,fontSize:11,color:'#bcd0f0'}}>Why this is a differentiator: every competing system shows you a better ranked list — you still pick. This pre-assigns the best operator to every absence using full skill ranking. You review and approve in 60 seconds, not fill in 15 minutes.</div>
+              {autoFilledOps.slice(0,3).map((op,i)=>(
+                <div key={i}>• <strong>{op.name}</strong>: {op.assigned.filter(a=>a.isAutoFill).map(a=>a.name+' ('+a.skillPct+'%)').join(', ')}</div>
               ))}
-              {autoFilledOps.length > 2 && <div>+ {autoFilledOps.length - 2} more</div>}
+              {autoFilledOps.length > 3 && <div>+ {autoFilledOps.length - 3} more</div>}
             </div>
           </div>
           <div className="autofill-actions">
-            <button className="btn-approve-all" onClick={approveAll}>Approve all</button>
+            <button className="btn-approve-all" onClick={approveAll}>✓ Approve all</button>
             <button className="btn btn-sm" style={{background:'transparent',color:'#fff',borderColor:'#8ab4f8'}} onClick={()=>setShowAutoFillBanner(false)}>Review individually</button>
           </div>
         </div>
@@ -1804,33 +1927,91 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
       
       <div className="split">
         <div className="card">
-          <div className="card-header"><div className="card-header-title">Operations</div></div>
-          <div className="daily-header-row">
-            <div>Seq</div><div>Operation</div><div>SMV</div><div>Skill req</div><div>Status</div><div>Operator(s)</div>
+          <div className="card-header">
+            <div className="card-header-title">Operation assignments</div>
+            <div style={{fontSize:11,color:'#888',display:'flex',alignItems:'center',gap:12}}>
+              <span><span className="gap-dot gap-green"></span>Present</span>
+              <span><span className="gap-dot gap-red"></span>Absent</span>
+              <span><span className="gap-dot gap-blue"></span>Auto-filled ✦</span>
+            </div>
           </div>
-          {deployment.map((op,i)=>{
-            const hasAutoFill = op.assigned.some(a=>a.isAutoFill);
-            return (
-              <div key={i} className={'daily-op-row '+(i===selectedOpIdx?'selected':'')} onClick={()=>setSelectedOpIdx(i)}>
-                <div className={'seq-circle '+(hasAutoFill?'has-absent':'')}>{op.seq}</div>
-                <div><strong>{op.name}</strong></div>
-                <div>{op.smv.toFixed(2)}</div>
-                <div>80%</div>
-                <div>{op.assigned.length === 0 ? <span className="badge bd">Gap</span> : hasAutoFill ? <span className="badge bw">Auto</span> : <span className="badge bs">OK</span>}</div>
-                <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-                  {op.assigned.map((a,j)=>(
-                    <div key={j} className={'op-chip '+(a.isAutoFill?'auto-filled':a.absent?'absent':'')}>
-                      <Avatar name={a.name} color={a.color}/>
-                      <span>{a.name}</span>
-                      <span className={skillClass(a.skillPct)}>{a.skillPct}%</span>
-                      {a.isAutoFill && <span style={{fontSize:9,marginLeft:2}}>AUTO</span>}
-                    </div>
-                  ))}
-                  <button className="btn btn-xs" style={{padding:'2px 6px'}} onClick={(e)=>{e.stopPropagation();onOpenCT(op,op.assigned[0]);}}>📊 CT</button>
-                </div>
-              </div>
-            );
-          })}
+          <div className="scroll-x">
+            <table>
+              <thead>
+                <tr>
+                  <th style={{width:40}}>Seq</th>
+                  <th>Operation</th>
+                  <th>Type</th>
+                  <th style={{width:70}}>SMV</th>
+                  <th style={{width:50}}>MP</th>
+                  <th>Operator</th>
+                  <th style={{width:80}}>Skill %</th>
+                  <th style={{width:90}}>Status</th>
+                  <th style={{width:90}}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+              {deployment.map((op,i)=>{
+                const hasAutoFill = op.assigned.some(a=>a.isAutoFill);
+                const hasAbsent = op.assigned.some(a=>a.absent);
+                return op.assigned.length === 0 ? (
+                  <tr key={i+'-empty'}>
+                    <td><strong>{op.seq}</strong></td>
+                    <td><strong>{op.name}</strong></td>
+                    <td><span className={op.type==='Machine'?'tag-m':'tag-nm'}>{op.type}</span></td>
+                    <td>{op.smv.toFixed(2)}</td>
+                    <td><strong>0</strong></td>
+                    <td colSpan={4}>
+                      <span style={{color:'#b71c1c',fontSize:11,fontWeight:600}}>UNASSIGNED</span>
+                      <button className="btn btn-xs" style={{marginLeft:8}} onClick={()=>setSelectedOpIdx(i)}>+ Add operator</button>
+                    </td>
+                  </tr>
+                ) : op.assigned.map((a, j) => {
+                  const isFirstRow = j === 0;
+                  const isLastRow = j === op.assigned.length - 1;
+                  return (
+                    <tr key={i+'-'+j} 
+                        style={{
+                          cursor:'pointer',
+                          background: i===selectedOpIdx ? '#f0f4ff' : '',
+                          borderBottom: isLastRow ? '1px solid #e5e5e5' : '1px solid #f5f5f3'
+                        }}
+                        onClick={()=>setSelectedOpIdx(i)}>
+                      <td style={{borderBottom:'none'}}>{isFirstRow ? <strong>{op.seq}</strong> : ''}</td>
+                      <td style={{borderBottom:'none'}}>{isFirstRow ? <strong>{op.name}</strong> : ''}</td>
+                      <td style={{borderBottom:'none'}}>{isFirstRow ? <span className={op.type==='Machine'?'tag-m':'tag-nm'}>{op.type}</span> : ''}</td>
+                      <td style={{borderBottom:'none'}}>{isFirstRow ? op.smv.toFixed(2) : ''}</td>
+                      <td style={{borderBottom:'none'}}>{isFirstRow ? <strong>{op.assigned.length}</strong> : ''}</td>
+                      <td style={{borderBottom:'none'}}>
+                        <div style={{display:'flex',alignItems:'center',gap:8}}>
+                          <Avatar name={a.name} color={a.color}/>
+                          <div>
+                            <div style={{fontSize:13,fontWeight:500,textDecoration:a.absent?'line-through':'none',color:a.absent?'#b71c1c':'#1a1a1a'}}>{a.name}</div>
+                            <div style={{fontSize:10,color:'#888'}}>{a.id}{a.isAdjacent && ' · adjacent'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{borderBottom:'none'}}>
+                        <span className={a.absent ? 'skill-lo' : skillClass(a.skillPct)} style={{textDecoration:a.absent?'line-through':'none'}}>{a.skillPct}%</span>
+                      </td>
+                      <td style={{borderBottom:'none'}}>
+                        {a.absent ? <span className="badge bd">Absent</span> : 
+                         a.isAutoFill ? <span className="badge bi" style={{background:'#e8f0fe',color:'#1a56b0'}}>✦ Auto</span> : 
+                         <span className="badge bs">Present</span>}
+                      </td>
+                      <td style={{borderBottom:'none'}}>
+                        <div style={{display:'flex',gap:3}}>
+                          {!a.absent && <button className="btn btn-xs" onClick={(e)=>{e.stopPropagation();onOpenCT(op,a);}} title="Capture cycle time">📊</button>}
+                          <button className="btn btn-xs" onClick={(e)=>{e.stopPropagation();setSelectedOpIdx(i);}} title="Swap operator">↻</button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                });
+              })}
+              </tbody>
+            </table>
+          </div>
         </div>
         
         <div className="mp-panel">
@@ -1958,15 +2139,15 @@ const CapturePriorityScreen = ({toast,onOpenCT}) => {
   
   return (
     <>
-      <div className="devx-banner">
-        <span style={{fontSize:16}}>✦</span>
-        <div style={{flex:1}}>
-          <div style={{fontSize:12,fontWeight:600,color:'#5b21b6'}}>AI capture prioritisation</div>
-          <div style={{fontSize:11,color:'#7c3aed'}}>Who to observe today — ranked by operational criticality, observation count, and data freshness</div>
-        </div>
-      </div>
+      <DevxCallout
+        title="AI Capture Prioritisation"
+        oneLiner="The system tells the supervisor exactly who to observe today, ranked by operational criticality, observation count, and data freshness."
+        problem="Supervisors today observe whoever is nearest. Critical bottleneck operations end up with the least data because they're not prioritised. The Skill Master becomes uneven."
+        impact="Same time spent observing → far more strategically valuable data collected. Over 6 months, builds a materially better Skill Master than random observation."
+        usage="Available every shift but used selectively — supervisors typically observe 2–4 operators per shift. The ranked list ensures those observations close the most important data gaps."
+      />
       
-      <div className="note">The same 10 minutes spent observing operators is far more valuable when directed at the operations that need the data most. Bottleneck operations and operators with no recent observations rank highest.</div>
+      <div className="note">Bottleneck operations and operators with no recent observations rank highest. Refreshes hourly as new CT data comes in.</div>
       
       <div className="card">
         <div className="card-header">
@@ -2003,6 +2184,13 @@ const SkillHistory = ({observations,toast}) => {
   
   return (
     <>
+      <DevxCallout
+        title="Learning Milestone Alert"
+        oneLiner="When an operator crosses a configured Skill % threshold (70%, 85%, 90%) across 3 consecutive observations, the system automatically alerts the IE and auto-closes any open training flag."
+        problem="Today, when an operator improves, nobody knows. They continue to be treated as a training case for months longer than necessary. The loop from training to confirmed improvement is manual and lossy."
+        impact="Closes the loop: training gap identified in Phase 4 → training conducted → improvement confirmed → record updated → flag closed — all automatically, no manual review."
+        usage="Triggered automatically — fires when any operator crosses a milestone. Typically 2–5 alerts per division per month, rising as more CT data is captured."
+      />
       <div className="note">All cycle time observations · per operator per operation · trend per recent vs previous observations</div>
       <div className="filter-row">
         <select><option>All operations</option><option>Collar attach</option><option>Sleeve attach</option></select>
@@ -2108,21 +2296,21 @@ const App = () => {
   
   // Topbar title
   const titles = {
-    masters:{t:'Masters home',s:'All masters · Admin access'},
-    division:{t:'Division master',s:'Phase 1 · SAP-aligned'},
-    factory:{t:'Factory master',s:'Phase 1 · SAP-aligned'},
-    line:{t:'Line master',s:'Phase 1 · Shift config at line level'},
-    machine:{t:'Machine master',s:'Phase 1 · Factory-level'},
-    operation:{t:'Operation master',s:'Phase 1 · SMV + adjacent operations'},
-    skill:{t:'Employee skill master ✦',s:'Phase 1 · Skill % per operator per operation'},
+    masters:{t:'Masters home',s:'All masters'},
+    division:{t:'Division master',s:'SAP-aligned'},
+    factory:{t:'Factory master',s:'SAP-aligned'},
+    line:{t:'Line master',s:'Shift config at line level'},
+    machine:{t:'Machine master',s:'Factory-level'},
+    operation:{t:'Operation master',s:'SMV + adjacent operations'},
+    skill:{t:'Employee skill master ✦',s:'Skill % per operator per operation'},
     integration:{t:'Integration health',s:'SAP + HRMS · sync runs and errors'},
-    ob:{t:'Operation bulletins',s:'Phase 2 · OBs for active styles'},
-    ld:{t:'Line design',s:'Phase 3 · Scenario generation engine'},
-    dashboard:{t:'Assignment dashboard',s:'Phase 4 · All lines · planned vs actual'},
-    deploy:{t:'Deployment planning',s:'Phase 4 · Skill-based assignment'},
-    daily:{t:'Daily balancing',s:'Phase 5 · Today\'s deployment ✦'},
-    'ct-priority':{t:'Capture priority ✦',s:'Phase 6 · Who to observe today'},
-    'ct-history':{t:'Skill history',s:'Phase 6 · CT observations and trends'},
+    ob:{t:'Operation bulletins',s:'OBs for active styles'},
+    ld:{t:'Line design',s:'Scenario generation engine'},
+    dashboard:{t:'Assignment dashboard',s:'All lines · planned vs actual'},
+    deploy:{t:'Deployment planning',s:'Skill-based assignment'},
+    daily:{t:'Daily balancing',s:'Today\'s deployment ✦'},
+    'ct-priority':{t:'Capture priority ✦',s:'Who to observe today'},
+    'ct-history':{t:'Skill history',s:'CT observations and trends'},
   };
   const t = titles[view] || titles.masters;
   
@@ -2143,17 +2331,14 @@ const App = () => {
             )}
             <div className="role-switcher">
               <span className="role-switcher-label">View as:</span>
-              <button className={`role-pill ${role==='Admin'?'active':''}`} onClick={()=>setRole('Admin')} title="Phase 1 — Masters">
+              <button className={`role-pill ${role==='Admin'?'active':''}`} onClick={()=>setRole('Admin')} title="Masters & data foundation">
                 Admin
-                <span className="role-pill-phase">Phase 1</span>
               </button>
-              <button className={`role-pill ${role==='IE'?'active':''}`} onClick={()=>setRole('IE')} title="Phases 2, 3, 4, 6">
+              <button className={`role-pill ${role==='IE'?'active':''}`} onClick={()=>setRole('IE')} title="OBs, Line Design, Deployment Planning, Skill History">
                 IE
-                <span className="role-pill-phase">Phases 2-4, 6</span>
               </button>
-              <button className={`role-pill ${role==='Supervisor'?'active':''}`} onClick={()=>setRole('Supervisor')} title="Phases 5, 6 — tablet view">
+              <button className={`role-pill ${role==='Supervisor'?'active':''}`} onClick={()=>setRole('Supervisor')} title="Daily Balancing & Cycle Time">
                 Supervisor
-                <span className="role-pill-phase">Phases 5-6</span>
               </button>
             </div>
           </div>
