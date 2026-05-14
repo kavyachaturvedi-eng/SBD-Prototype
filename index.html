@@ -424,28 +424,40 @@ const OPERATORS = [
   {id:'EMP-1042',name:'Meena R.',color:'#e65100',skills:{'Front placket attach':109,'Collar attach':91},absent:false},
   {id:'EMP-1103',name:'Priya S.',color:'#2e7d32',skills:{'Front placket attach':92,'Collar attach':84},absent:false},
   {id:'EMP-1087',name:'Ravi K.',color:'#1a56b0',skills:{'Collar attach':68,'Front placket attach':72},absent:true},
-  {id:'EMP-2601',name:'Deepa M.',color:'#5b21b6',skills:{'Collar attach':84},absent:false},
+  {id:'EMP-2601',name:'Deepa M.',color:'#5b21b6',skills:{'Collar attach':84,'Cuff attach':78},absent:false},
   {id:'EMP-2602',name:'Nanda K.',color:'#c62828',skills:{'Collar attach':78},absent:true},
-  {id:'EMP-2310',name:'Geetha S.',color:'#0f6e56',skills:{'Sleeve attach':95},absent:false},
-  {id:'EMP-2311',name:'Anitha R.',color:'#b45309',skills:{'Sleeve attach':88},absent:false},
+  {id:'EMP-2310',name:'Geetha S.',color:'#0f6e56',skills:{'Sleeve attach':95,'Cuff attach':86},absent:false},
+  {id:'EMP-2311',name:'Anitha R.',color:'#b45309',skills:{'Sleeve attach':88,'Side seam':82},absent:false},
   {id:'EMP-2312',name:'Ramesh P.',color:'#1a56b0',skills:{'Sleeve attach':82,'Cuff attach':75},absent:false},
   {id:'EMP-2313',name:'Usha V.',color:'#555',skills:{'Sleeve attach':76},absent:true},
-  {id:'EMP-2401',name:'Helper-01',color:'#888',skills:{'Thread trimming':100},absent:false},
-  {id:'EMP-1210',name:'Suresh M.',color:'#c62828',skills:{'Button attach':108},absent:true},
+  {id:'EMP-2401',name:'Helper-01',color:'#888',skills:{'Thread trimming':100,'Side seam':70},absent:false},
+  {id:'EMP-1210',name:'Suresh M.',color:'#c62828',skills:{'Button attach':108,'Buttonhole':88},absent:true},
   {id:'EMP-1211',name:'Babu T.',color:'#0f6e56',skills:{'Button attach':99,'Buttonhole':92},absent:false},
   {id:'EMP-2701',name:'Kumar T.',color:'#1a56b0',skills:{'Collar attach':85,'Front placket attach':88},absent:false},
-  {id:'EMP-2702',name:'Lakshmi B.',color:'#0f6e56',skills:{'Collar attach':104},absent:false},
+  {id:'EMP-2702',name:'Lakshmi B.',color:'#0f6e56',skills:{'Collar attach':104,'Cuff attach':82},absent:false},
   {id:'EMP-2703',name:'Saravanan P.',color:'#5b21b6',skills:{'Collar attach':96,'Cuff attach':80},absent:false},
-  {id:'EMP-2704',name:'Preethi S.',color:'#b45309',skills:{'Sleeve attach':79},absent:false},
+  {id:'EMP-2704',name:'Preethi S.',color:'#b45309',skills:{'Sleeve attach':79,'Collar attach':82},absent:false},
   {id:'EMP-2705',name:'Rajesh K.',color:'#c62828',skills:{'Button attach':91,'Buttonhole':85},absent:false},
-  {id:'EMP-2706',name:'Karthik N.',color:'#0f5f5f',skills:{'Front placket attach':88,'Cuff attach':82},absent:false},
+  {id:'EMP-2706',name:'Karthik N.',color:'#0f5f5f',skills:{'Front placket attach':88,'Cuff attach':82,'Collar attach':81},absent:false},
   {id:'EMP-2707',name:'Vidya M.',color:'#7c3aed',skills:{'Sleeve attach':86,'Side seam':91},absent:false},
-  {id:'EMP-2708',name:'Mohan R.',color:'#0f6e56',skills:{'Side seam':95,'Cuff attach':89},absent:false},
-  {id:'EMP-2709',name:'Sunita P.',color:'#b45309',skills:{'Side seam':87},absent:false},
+  {id:'EMP-2708',name:'Mohan R.',color:'#0f6e56',skills:{'Side seam':95,'Cuff attach':89,'Sleeve attach':84},absent:false},
+  {id:'EMP-2709',name:'Sunita P.',color:'#b45309',skills:{'Side seam':87,'Sleeve attach':80},absent:false},
   {id:'EMP-2710',name:'Helper-02',color:'#666',skills:{'Thread trimming':95},absent:false},
   {id:'EMP-2711',name:'Helper-03',color:'#888',skills:{'Thread trimming':92},absent:true},
-  {id:'EMP-2712',name:'Devi K.',color:'#1a56b0',skills:{'Buttonhole':98},absent:false},
-  {id:'EMP-2713',name:'Manju S.',color:'#5b21b6',skills:{'Buttonhole':94},absent:false},
+  {id:'EMP-2712',name:'Devi K.',color:'#1a56b0',skills:{'Buttonhole':98,'Button attach':86},absent:false},
+  {id:'EMP-2713',name:'Manju S.',color:'#5b21b6',skills:{'Buttonhole':94,'Button attach':84},absent:false},
+  // BENCH — extra operators on standby, available for auto-fill replacement
+  {id:'EMP-2714',name:'Suma G.',color:'#0d9488',skills:{'Collar attach':94,'Cuff attach':81},absent:false},
+  {id:'EMP-2715',name:'Pooja H.',color:'#dc2626',skills:{'Collar attach':89,'Front placket attach':82},absent:false},
+  {id:'EMP-2716',name:'Rekha D.',color:'#0891b2',skills:{'Sleeve attach':92,'Side seam':85},absent:false},
+  {id:'EMP-2717',name:'Jaya M.',color:'#7c3aed',skills:{'Button attach':93,'Buttonhole':89},absent:false},
+  {id:'EMP-2718',name:'Helper-04',color:'#525252',skills:{'Thread trimming':88,'Side seam':70},absent:false},
+  // EXTRA BENCH — more present operators for auto-fill on absences
+  {id:'EMP-2719',name:'Shanti R.',color:'#0d9488',skills:{'Collar attach':86,'Front placket attach':80},absent:false},
+  {id:'EMP-2720',name:'Bhagya N.',color:'#dc2626',skills:{'Sleeve attach':89,'Cuff attach':78},absent:false},
+  {id:'EMP-2721',name:'Latha P.',color:'#7c3aed',skills:{'Button attach':95,'Buttonhole':90},absent:false},
+  {id:'EMP-2722',name:'Kavitha M.',color:'#0891b2',skills:{'Thread trimming':93,'Side seam':75},absent:false},
+  {id:'EMP-2723',name:'Helper-05',color:'#525252',skills:{'Thread trimming':89},absent:false},
 ];
 
 const ROLES = {
@@ -1787,29 +1799,52 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
   const activeLD = data.lineDesigns.find(l=>l.status==='Active') || data.lineDesigns[0];
   const ops = OB_OPERATIONS[activeLD.obId] || OB_OPERATIONS['SHT-4821'];
   
-  // Initial deployment — multiple operators per operation (matching Phase 4 LD allocation)
-  // 28 total operators across 8 operations, some absent triggering auto-fill
+  // Initial deployment — simulates "yesterday's deployment, now showing today's absences"
+  // We explicitly place absent operators into their natural operations to guarantee the demo
+  // shows them, then auto-fill replaces each one.
   const initialDeployment = useMemo(()=>{
-    const used = new Set();
-    // Define MP per operation based on SMV proportional to total — same as Phase 4
     const totalSMV = ops.reduce((s,o)=>s+o.smv,0);
     const totalMP = 28;
     
-    return ops.map(op => {
-      const mpForOp = Math.max(1, Math.round((op.smv/totalSMV)*totalMP));
-      
-      // Find candidates (direct skill match), pick top N up to mpForOp
-      const direct = OPERATORS
-        .filter(emp => !used.has(emp.id) && emp.skills[op.name] != null)
+    // Step 1: For each op, identify absent operators that "should" be there (have skill on this op)
+    const opAbsentPlan = {};
+    ops.forEach(op => {
+      const absentForOp = OPERATORS
+        .filter(e => e.absent && e.skills[op.name] != null)
         .sort((a,b)=>(b.skills[op.name]||0)-(a.skills[op.name]||0));
+      // Take at most 1 absent per op (avoid stacking)
+      opAbsentPlan[op.name] = absentForOp.slice(0, 1);
+    });
+    
+    const reservedAbsent = new Set();
+    Object.values(opAbsentPlan).flat().forEach(e => reservedAbsent.add(e.id));
+    
+    // Step 2: Build first-pass deployment — present operators fill most slots, 1 absent reserved per relevant op
+    const used = new Set();
+    const firstPass = ops.map(op => {
+      const mpForOp = Math.max(1, Math.round((op.smv/totalSMV)*totalMP));
+      const absentReserved = opAbsentPlan[op.name] || [];
+      const slotsForPresent = mpForOp - absentReserved.length;
       
-      const adjacent = OPERATORS
-        .filter(emp => !used.has(emp.id) && emp.skills[op.name] == null && Object.keys(emp.skills).length > 0)
-        .slice(0, Math.max(0, mpForOp - direct.length));
+      // Top present operators with direct skill
+      const presentDirect = OPERATORS
+        .filter(emp => !used.has(emp.id) && !emp.absent && emp.skills[op.name] != null)
+        .sort((a,b)=>(b.skills[op.name]||0)-(a.skills[op.name]||0))
+        .slice(0, slotsForPresent);
       
-      const all = [...direct, ...adjacent].slice(0, mpForOp);
+      // If not enough present-direct, fill with adjacent
+      let picked = [...presentDirect];
+      if (picked.length < slotsForPresent) {
+        const adjacent = OPERATORS
+          .filter(emp => !used.has(emp.id) && !emp.absent && !picked.find(p=>p.id===emp.id) && emp.skills[op.name] == null && Object.keys(emp.skills).length > 0)
+          .slice(0, slotsForPresent - picked.length);
+        picked = [...picked, ...adjacent];
+      }
       
-      const assigned = all.map(emp => {
+      // Add reserved absent operators
+      picked = [...picked, ...absentReserved];
+      
+      const assigned = picked.map(emp => {
         used.add(emp.id);
         const directSkill = emp.skills[op.name];
         const skillPct = directSkill != null ? directSkill : Math.max(...Object.values(emp.skills)) - 15;
@@ -1817,6 +1852,48 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
       });
       
       return {...op, assigned, mpRequired: mpForOp};
+    });
+    
+    // Step 3: AUTO-FILL replacements for each absent operator
+    const usedAfterAutofill = new Set();
+    firstPass.forEach(o => o.assigned.forEach(a => { if (!a.absent) usedAfterAutofill.add(a.id); }));
+    
+    return firstPass.map(op => {
+      const absentInOp = op.assigned.filter(a => a.absent);
+      if (absentInOp.length === 0) return op;
+      
+      const newAssigned = [];
+      op.assigned.forEach(a => {
+        newAssigned.push(a);
+        if (a.absent) {
+          // 1. Try direct skill match (present, qualified, available)
+          let candidate = OPERATORS
+            .filter(e => !usedAfterAutofill.has(e.id) && !e.absent && e.skills[op.name] != null)
+            .sort((x,y)=>y.skills[op.name]-x.skills[op.name])[0];
+          
+          // 2. Fall back to adjacent skill match
+          if (!candidate) {
+            candidate = OPERATORS
+              .filter(e => !usedAfterAutofill.has(e.id) && !e.absent && Object.keys(e.skills).length > 0)
+              .sort((x,y)=>Math.max(...Object.values(y.skills))-Math.max(...Object.values(x.skills)))[0];
+          }
+          
+          if (candidate) {
+            usedAfterAutofill.add(candidate.id);
+            const directSkill = candidate.skills[op.name];
+            newAssigned.push({
+              ...candidate,
+              skillPct: directSkill != null ? directSkill : Math.max(...Object.values(candidate.skills)) - 15,
+              isAutoFill: true,
+              isAdjacent: directSkill == null,
+              replacingId: a.id,
+              replacingName: a.name,
+            });
+          }
+        }
+      });
+      
+      return {...op, assigned: newAssigned};
     });
   },[activeLD]);
   
@@ -1905,14 +1982,9 @@ const DailyBalancing = ({data,toast,onOpenCT}) => {
     toast('All auto-fills approved · '+deployment.flatMap(o=>o.assigned).filter(a=>a.isAutoFill).length+' gaps closed ✓','success');
   };
   
-  // Run auto-fill on mount if there are absences (and we haven't filled yet)
-  useEffect(()=>{
-    const hasAbsent = deployment.some(op => op.assigned.some(a => a.absent));
-    const noFillsYet = deployment.every(op => op.assigned.every(a=>!a.isAutoFill));
-    if (hasAbsent && noFillsYet) {
-      runAutoFill();
-    }
-  },[]);
+  // Auto-fill already pre-computed in initial deployment. The runAutoFill function below
+  // is kept for re-running if the user toggles operators or imports fresh attendance.
+  // No mount-time effect needed.
   
   const autoFilledOps = deployment.filter(op => op.assigned.some(a => a.isAutoFill));
   
